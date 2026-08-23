@@ -17,6 +17,9 @@ add_executable(game
         src/grid.c
         include/entity.h
         src/entity.c
+        include/scene.h
+        src/scene.c
+        include/common.h
 )
 
 target_include_directories(game PUBLIC include PRIVATE src)

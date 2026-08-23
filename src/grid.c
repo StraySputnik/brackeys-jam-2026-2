@@ -11,6 +11,15 @@ void draw_tile(const Tile* tile, const int tile_size, const int tile_padding) {
     case GRASS:
         color = LIGHTGRAY;
         break;
+    case PATH:
+        color = GOLD;
+        break;
+    case LEFT_TURN:
+        color = GOLD;
+        break;
+    case RIGHT_TURN:
+        color = GOLD;
+        break;
     case TOWER:
         color = RED;
         break;

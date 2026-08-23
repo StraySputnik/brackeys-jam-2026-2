@@ -23,15 +23,10 @@ void draw_entity(const Entity* entity, const float entity_size) {
     DrawCircleV(entity->position, entity_size, color);
 }
 
-EntityPool make_entity_pool(const size_t initial_count) {
+EntityPool make_entity_pool() {
     EntityPool pool;
-    pool.entities = (Entity*)malloc(initial_count * sizeof(Entity));
-    pool.count = initial_count;
-
-    for (size_t i = 0; i < initial_count; i++) {
-        pool.entities[i].type = NULL_ENTITY;
-    }
-
+    pool.entities = NULL;
+    pool.count = 0;
     return pool;
 }
 

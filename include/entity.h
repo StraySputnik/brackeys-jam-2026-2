@@ -26,7 +26,7 @@ typedef struct {
     size_t count;
 } EntityPool;
 
-EntityPool make_entity_pool(size_t initial_count);
+EntityPool make_entity_pool();
 void delete_entity_pool(EntityPool* pool);
 
 EntityId spawn_entity(EntityPool* pool, Vector2 position, EntityType type);

@@ -1,28 +1,24 @@
-#include "grid.h"
-#include "entity.h"
+#include "scene.h"
 
 #include <raylib.h>
 
 int main() {
-    Grid grid = make_grid(9, 9);
-    EntityPool pool = make_entity_pool(1);
+    Scene scene = load_scene("scene.txt");
     InitWindow(1280, 720, "Game");
 
-    get_tile(&grid, 4, 4)->type = TOWER;
-    spawn_entity(&pool, (Vector2){.x = 96, .y = 96}, ENEMY);
+    spawn_entity(&scene.entity_pool, (Vector2){.x = 96, .y = 96}, ENEMY);
+    get_tile(&scene.grid, 4, 4)->type = TOWER;
 
     while (!WindowShouldClose()) {
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
-        draw_grid(&grid, 64, 4);
-        draw_entities(&pool, 24);
+        draw_scene(&scene, 64, 4, 24);
 
         EndDrawing();
     }
 
     CloseWindow();
-    delete_entity_pool(&pool);
-    delete_grid(&grid);
+    delete_scene(&scene);
     return 0;
 }
