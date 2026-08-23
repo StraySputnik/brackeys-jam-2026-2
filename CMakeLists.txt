@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0...4.0)
-project(game)
+project(game C)
 
 include(FetchContent)
 
@@ -13,6 +13,19 @@ FetchContent_MakeAvailable(raylib)
 
 add_executable(game
         src/main.c
+        include/grid.h
+        src/grid.c
+        include/entity.h
+        src/entity.c
 )
 
+target_include_directories(game PUBLIC include PRIVATE src)
 target_link_libraries(game raylib)
+
+target_compile_options(game PUBLIC
+    -fsanitize=address
+)
+
+target_link_options(game PUBLIC
+        -fsanitize=address
+)
