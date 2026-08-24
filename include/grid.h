@@ -4,8 +4,11 @@
 typedef enum {
     GRASS,
     PATH,
-    LEFT_TURN,
-    RIGHT_TURN,
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT,
+    CASTLE,
     TOWER,
     COLLECTOR,
     SPAWNER,

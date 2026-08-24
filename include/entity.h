@@ -15,8 +15,22 @@ typedef enum {
 } EntityType;
 
 typedef struct {
+    Vector2 direction;
+} EnemyData;
+
+typedef struct {
+    Vector2 direction;
+} FriendData;
+
+typedef struct {
+    EntityId id;
     Vector2 position;
     EntityType type;
+
+    union {
+        EnemyData enemy;
+        FriendData friend;
+    } data;
 } Entity;
 
 void draw_entity(const Entity* entity, float entity_size);

@@ -43,6 +43,7 @@ EntityId spawn_entity(EntityPool* pool, const Vector2 position, const EntityType
 
         pool->entities[i].position = position;
         pool->entities[i].type = type;
+        pool->entities[i].id = i;
         return i;
     }
 
@@ -55,6 +56,7 @@ EntityId spawn_entity(EntityPool* pool, const Vector2 position, const EntityType
     pool->count++;
     pool->entities[pool->count - 1].position = position;
     pool->entities[pool->count - 1].type = type;
+    pool->entities[pool->count - 1].id = pool->count - 1;
 
     return pool->count - 1;
 }
