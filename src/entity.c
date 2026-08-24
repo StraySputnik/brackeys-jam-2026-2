@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 
-void draw_entity(const Entity* entity, const float entity_size) {
+void draw_entity(const Entity* entity, float entity_size) {
     if (entity->type == NULL_ENTITY) {
         return;
     }
@@ -15,6 +15,10 @@ void draw_entity(const Entity* entity, const float entity_size) {
         break;
     case FRIEND:
         color = GREEN;
+        break;
+    case PROJECTILE:
+        color = YELLOW;
+        entity_size *= 0.5f;
         break;
     default:
         break;

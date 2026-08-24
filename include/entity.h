@@ -11,16 +11,23 @@ typedef enum {
     NULL_ENTITY,
     ENEMY,
     FRIEND,
+    PROJECTILE,
     ENTITY_TYPE_COUNT,
 } EntityType;
 
 typedef struct {
     Vector2 direction;
+    bool marked;
 } EnemyData;
 
 typedef struct {
     Vector2 direction;
+    bool marked;
 } FriendData;
+
+typedef struct {
+    Vector2 direction;
+} ProjectileData;
 
 typedef struct {
     EntityId id;
@@ -30,6 +37,7 @@ typedef struct {
     union {
         EnemyData enemy;
         FriendData friend;
+        ProjectileData projectile;
     } data;
 } Entity;
 

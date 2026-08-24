@@ -24,7 +24,7 @@ typedef struct {
 } Scene;
 
 Scene load_scene(const char* filename, DrawConfig draw_config);
-void delete_scene(Scene* scene);
+void unload_scene(Scene* scene);
 
 void update_scene(Scene* scene, float delta_time);
 void draw_scene(const Scene* scene);

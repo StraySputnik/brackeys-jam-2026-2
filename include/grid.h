@@ -1,6 +1,8 @@
 #ifndef GAME_GRID_H
 #define GAME_GRID_H
 
+#include "entity.h"
+
 typedef enum {
     GRASS,
     PATH,
@@ -16,9 +18,25 @@ typedef enum {
 } TileType;
 
 typedef struct {
+    float timer;
+} TowerData;
+
+typedef struct {
+    Vector2 direction;
+    float timer;
+    float spawn_interval;
+    EntityType entity_type;
+} SpawnerData;
+
+typedef struct {
     TileType type;
     int x;
     int y;
+
+    union {
+        TowerData tower;
+        SpawnerData spawner;
+    } data;
 } Tile;
 
 void draw_tile(const Tile* tile, int tile_size, int tile_padding);
