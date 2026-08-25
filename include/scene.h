@@ -5,28 +5,13 @@
 #include "entity.h"
 
 typedef struct {
-    int tile_size;
-    int tile_padding;
-    float entity_size;
-} DrawConfig;
-
-typedef struct {
-    int castle_health;
-} GameState;
-
-DrawConfig make_draw_config(int tile_size, int tile_padding, float entity_size);
-
-typedef struct {
     Grid grid;
     EntityPool entity_pool;
-    DrawConfig draw_config;
-    GameState game_state;
 } Scene;
 
-Scene load_scene(const char* filename, DrawConfig draw_config);
+Scene load_scene(const char* filename);
 void unload_scene(Scene* scene);
 
-void update_scene(Scene* scene, float delta_time);
-void draw_scene(const Scene* scene);
+void draw_scene(const Scene* scene, int tile_size, int tile_padding, float entity_size);
 
 #endif //GAME_SCENE_H

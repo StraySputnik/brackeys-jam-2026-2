@@ -19,6 +19,8 @@ add_executable(game
         src/entity.c
         include/scene.h
         src/scene.c
+        include/game.h
+        src/game.c
 )
 
 target_include_directories(game PUBLIC include PRIVATE src)
