@@ -5,9 +5,9 @@
 #include <assert.h>
 #include <stdio.h>
 
-static void get_file_dimensions(FILE* file, int* width, int* height) {
-    int w = 0;
-    int h = 0;
+static void get_file_dimensions(FILE *file, int *width, int *height) {
+    int w     = 0;
+    int h     = 0;
     int max_w = 0;
 
     int c = fgetc(file);
@@ -25,17 +25,17 @@ static void get_file_dimensions(FILE* file, int* width, int* height) {
         c = fgetc(file);
     }
 
-    *width = max_w;
+    *width  = max_w;
     *height = h + 1;
 
     rewind(file);
 }
 
-Scene load_scene(const char* filename) {
+Scene load_scene(const char *filename) {
     Scene scene;
     scene.entity_pool = make_entity_pool();
 
-    FILE* file = fopen(filename, "r");
+    FILE *file = fopen(filename, "r");
     assert(file && "Failed to open file.");
 
     int width, height;
@@ -98,12 +98,12 @@ Scene load_scene(const char* filename) {
     return scene;
 }
 
-void unload_scene(Scene* scene) {
+void unload_scene(Scene *scene) {
     delete_entity_pool(&scene->entity_pool);
     delete_grid(&scene->grid);
 }
 
-void draw_scene(const Scene* scene, const int tile_size, const int tile_padding, const float entity_size) {
+void draw_scene(const Scene *scene, const int tile_size, const int tile_padding, const float entity_size) {
     draw_grid(&scene->grid, tile_size, tile_padding);
     draw_entities(&scene->entity_pool, entity_size);
 }

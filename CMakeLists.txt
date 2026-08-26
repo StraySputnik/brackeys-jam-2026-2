@@ -27,7 +27,7 @@ target_include_directories(game PUBLIC include PRIVATE src)
 target_link_libraries(game raylib)
 
 target_compile_options(game PUBLIC
-    -fsanitize=address,leak
+        -fsanitize=address,leak
 )
 
 target_link_options(game PUBLIC

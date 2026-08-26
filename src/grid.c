@@ -4,7 +4,7 @@
 
 #include <stdlib.h>
 
-void draw_tile(const Tile* tile, const int tile_size, const int tile_padding) {
+void draw_tile(const Tile *tile, const int tile_size, const int tile_padding) {
     Color color;
 
     switch (tile->type) {
@@ -49,25 +49,25 @@ void draw_tile(const Tile* tile, const int tile_size, const int tile_padding) {
 
 Grid make_grid(const int width, const int height) {
     Grid grid;
-    grid.width = width;
+    grid.width  = width;
     grid.height = height;
-    grid.tiles = (Tile*)malloc(width * height * sizeof(Tile));
+    grid.tiles  = (Tile *)malloc(width * height * sizeof(Tile));
 
     for (int i = 0; i < width * height; i++) {
         grid.tiles[i].type = GRASS;
-        grid.tiles[i].x = i % width;
-        grid.tiles[i].y = i / width;
+        grid.tiles[i].x    = i % width;
+        grid.tiles[i].y    = i / width;
     }
 
     return grid;
 }
 
-void delete_grid(Grid* grid) {
+void delete_grid(Grid *grid) {
     free(grid->tiles);
     grid->tiles = NULL;
 }
 
-Tile* get_tile(Grid* grid, const int x, const int y) {
+Tile *get_tile(Grid *grid, const int x, const int y) {
     if (x < 0 || x >= grid->width || y < 0 || y >= grid->height) {
         return NULL;
     }
@@ -82,7 +82,7 @@ Tile* get_tile(Grid* grid, const int x, const int y) {
     return NULL;
 }
 
-void draw_grid(const Grid* grid, const int tile_size, const int tile_padding) {
+void draw_grid(const Grid *grid, const int tile_size, const int tile_padding) {
     for (int i = 0; i < grid->width * grid->height; i++) {
         const Tile tile = grid->tiles[i];
         draw_tile(&tile, tile_size, tile_padding);

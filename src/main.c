@@ -9,19 +9,19 @@ int main() {
     InitWindow(1280, 720, "Game");
     SetExitKey(KEY_NULL);
 
-    Tile* spawner = get_tile(&game.scene.grid, 0, 1);
+    Tile *spawner = get_tile(&game.scene.grid, 0, 1);
 
-    spawner->type = SPAWNER;
-    spawner->data.spawner.direction = (Vector2){.x = 1, .y = 0};
-    spawner->data.spawner.entity_type = ENEMY;
-    spawner->data.spawner.timer = 0.0f;
-    spawner->data.spawner.spawn_interval = 2.0f;\
+    spawner->type                        = SPAWNER;
+    spawner->data.spawner.direction      = (Vector2){.x = 1, .y = 0};
+    spawner->data.spawner.entity_type    = FRIEND;
+    spawner->data.spawner.timer          = 0.0f;
+    spawner->data.spawner.spawn_interval = 2.0f;
 
     while (!WindowShouldClose()) {
         update_game(&game, GetFrameTime());
 
         BeginDrawing();
-        ClearBackground(RAYWHITE);
+        ClearBackground(BLACK);
         draw_game(&game);
         handle_ui(&game);
         EndDrawing();

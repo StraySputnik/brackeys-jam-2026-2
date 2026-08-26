@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 
-void draw_entity(const Entity* entity, float entity_size) {
+void draw_entity(const Entity *entity, float entity_size) {
     if (entity->type == NULL_ENTITY) {
         return;
     }
@@ -30,15 +30,15 @@ void draw_entity(const Entity* entity, float entity_size) {
 EntityPool make_entity_pool() {
     EntityPool pool;
     pool.entities = NULL;
-    pool.count = 0;
+    pool.count    = 0;
     return pool;
 }
 
-void delete_entity_pool(EntityPool* pool) {
+void delete_entity_pool(EntityPool *pool) {
     free(pool->entities);
 }
 
-EntityId spawn_entity(EntityPool* pool, const Vector2 position, const EntityType type) {
+EntityId spawn_entity(EntityPool *pool, const Vector2 position, const EntityType type) {
     // Look for null entity first
     for (size_t i = 0; i < pool->count; i++) {
         if (pool->entities[i].type != NULL_ENTITY) {
@@ -46,30 +46,30 @@ EntityId spawn_entity(EntityPool* pool, const Vector2 position, const EntityType
         }
 
         pool->entities[i].position = position;
-        pool->entities[i].type = type;
-        pool->entities[i].id = i;
+        pool->entities[i].type     = type;
+        pool->entities[i].id       = i;
         return i;
     }
 
     if (pool->count == 0) {
-        pool->entities = (Entity*)malloc(sizeof(Entity));
+        pool->entities = (Entity *)malloc(sizeof(Entity));
     } else {
-        pool->entities = (Entity*)realloc(pool->entities, (pool->count + 1) * sizeof(Entity));
+        pool->entities = (Entity *)realloc(pool->entities, (pool->count + 1) * sizeof(Entity));
     }
 
     pool->count++;
     pool->entities[pool->count - 1].position = position;
-    pool->entities[pool->count - 1].type = type;
-    pool->entities[pool->count - 1].id = pool->count - 1;
+    pool->entities[pool->count - 1].type     = type;
+    pool->entities[pool->count - 1].id       = pool->count - 1;
 
     return pool->count - 1;
 }
 
-void despawn_entity(const EntityPool* pool, const EntityId id) {
+void despawn_entity(const EntityPool *pool, const EntityId id) {
     pool->entities[id].type = NULL_ENTITY;
 }
 
-Entity* get_entity(const EntityPool* pool, const EntityId id) {
+Entity *get_entity(const EntityPool *pool, const EntityId id) {
     if (id >= pool->count) {
         return NULL;
     }
@@ -77,7 +77,7 @@ Entity* get_entity(const EntityPool* pool, const EntityId id) {
     return &pool->entities[id];
 }
 
-void draw_entities(const EntityPool* pool, const float entity_size) {
+void draw_entities(const EntityPool *pool, const float entity_size) {
     for (size_t i = 0; i < pool->count; i++) {
         draw_entity(&pool->entities[i], entity_size);
     }

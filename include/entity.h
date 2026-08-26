@@ -17,12 +17,12 @@ typedef enum {
 
 typedef struct {
     Vector2 direction;
-    bool marked;
+    bool    marked;
 } EnemyData;
 
 typedef struct {
     Vector2 direction;
-    bool marked;
+    bool    marked;
 } FriendData;
 
 typedef struct {
@@ -30,31 +30,31 @@ typedef struct {
 } ProjectileData;
 
 typedef struct {
-    EntityId id;
-    Vector2 position;
+    EntityId   id;
+    Vector2    position;
     EntityType type;
 
     union {
-        EnemyData enemy;
-        FriendData friend;
+        EnemyData      enemy;
+        FriendData     friend;
         ProjectileData projectile;
     } data;
 } Entity;
 
-void draw_entity(const Entity* entity, float entity_size);
+void draw_entity(const Entity *entity, float entity_size);
 
 typedef struct {
-    Entity* entities;
-    size_t count;
+    Entity *entities;
+    size_t  count;
 } EntityPool;
 
 EntityPool make_entity_pool();
-void delete_entity_pool(EntityPool* pool);
+void       delete_entity_pool(EntityPool *pool);
 
-EntityId spawn_entity(EntityPool* pool, Vector2 position, EntityType type);
-void despawn_entity(const EntityPool* pool, EntityId id);
+EntityId spawn_entity(EntityPool *pool, Vector2 position, EntityType type);
+void     despawn_entity(const EntityPool *pool, EntityId id);
 
-Entity* get_entity(const EntityPool* pool, EntityId id);
-void draw_entities(const EntityPool* pool, float entity_size);
+Entity *get_entity(const EntityPool *pool, EntityId id);
+void    draw_entities(const EntityPool *pool, float entity_size);
 
 #endif //GAME_ENTITY_H
