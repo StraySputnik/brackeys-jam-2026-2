@@ -50,34 +50,34 @@ Scene load_scene(const char *filename) {
     while (c != EOF) {
         switch (c) {
         case '.':
-            get_tile(&scene.grid, x, y)->type = GRASS;
+            get_tile(&scene.grid, x, y)->type = TILE_GRASS;
             break;
         case 'P':
-            get_tile(&scene.grid, x, y)->type = PATH;
+            get_tile(&scene.grid, x, y)->type = TILE_PATH;
             break;
         case 'U':
-            get_tile(&scene.grid, x, y)->type = UP;
+            get_tile(&scene.grid, x, y)->type = TILE_UP;
             break;
         case 'D':
-            get_tile(&scene.grid, x, y)->type = DOWN;
+            get_tile(&scene.grid, x, y)->type = TILE_DOWN;
             break;
         case 'L':
-            get_tile(&scene.grid, x, y)->type = LEFT;
+            get_tile(&scene.grid, x, y)->type = TILE_LEFT;
             break;
         case 'R':
-            get_tile(&scene.grid, x, y)->type = RIGHT;
+            get_tile(&scene.grid, x, y)->type = TILE_RIGHT;
             break;
         case 'H':
-            get_tile(&scene.grid, x, y)->type = CASTLE;
+            get_tile(&scene.grid, x, y)->type = TILE_CASTLE;
             break;
         case 'T':
-            get_tile(&scene.grid, x, y)->type = TOWER;
+            get_tile(&scene.grid, x, y)->type = TILE_TOWER;
             break;
         case 'C':
-            get_tile(&scene.grid, x, y)->type = COLLECTOR;
+            get_tile(&scene.grid, x, y)->type = TILE_COLLECTOR;
             break;
         case 'S':
-            get_tile(&scene.grid, x, y)->type = SPAWNER;
+            get_tile(&scene.grid, x, y)->type = TILE_SPAWNER;
             break;
         default:
             break;

@@ -11,9 +11,9 @@ int main() {
 
     Tile *spawner = get_tile(&game.scene.grid, 0, 1);
 
-    spawner->type                        = SPAWNER;
+    spawner->type                        = TILE_SPAWNER;
     spawner->data.spawner.direction      = (Vector2){.x = 1, .y = 0};
-    spawner->data.spawner.entity_type    = FRIEND;
+    spawner->data.spawner.monster_type   = MONSTER_VAMPIRE;
     spawner->data.spawner.timer          = 0.0f;
     spawner->data.spawner.spawn_interval = 2.0f;
 

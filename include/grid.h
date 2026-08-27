@@ -4,28 +4,30 @@
 #include "entity.h"
 
 typedef enum {
-    GRASS,
-    PATH,
-    UP,
-    DOWN,
-    LEFT,
-    RIGHT,
-    CASTLE,
-    TOWER,
-    COLLECTOR,
-    SPAWNER,
-    BUILDING_TYPE_COUNT,
+    TILE_GRASS,
+    TILE_PATH,
+    TILE_UP,
+    TILE_DOWN,
+    TILE_LEFT,
+    TILE_RIGHT,
+    TILE_CASTLE,
+    TILE_TOWER,
+    TILE_COLLECTOR,
+    TILE_SPAWNER,
+    TILE_TYPE_COUNT,
 } TileType;
+
+int build_price(TileType tile);
 
 typedef struct {
     float timer;
 } TowerData;
 
 typedef struct {
-    Vector2    direction;
-    float      timer;
-    float      spawn_interval;
-    EntityType entity_type;
+    Vector2     direction;
+    float       timer;
+    float       spawn_interval;
+    MonsterType monster_type;
 } SpawnerData;
 
 typedef struct {

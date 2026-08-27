@@ -4,38 +4,47 @@
 
 #include <stdlib.h>
 
+int build_price(const TileType tile) {
+    switch (tile) {
+    case TILE_TOWER:
+        return 5;
+    default:
+        return 1023;
+    }
+}
+
 void draw_tile(const Tile *tile, const int tile_size, const int tile_padding) {
     Color color;
 
     switch (tile->type) {
-    case GRASS:
+    case TILE_GRASS:
         color = LIGHTGRAY;
         break;
-    case PATH:
+    case TILE_PATH:
         color = GOLD;
         break;
-    case UP:
+    case TILE_UP:
         color = GOLD;
         break;
-    case DOWN:
+    case TILE_DOWN:
         color = GOLD;
         break;
-    case LEFT:
+    case TILE_LEFT:
         color = GOLD;
         break;
-    case RIGHT:
+    case TILE_RIGHT:
         color = GOLD;
         break;
-    case CASTLE:
+    case TILE_CASTLE:
         color = PURPLE;
         break;
-    case TOWER:
+    case TILE_TOWER:
         color = RED;
         break;
-    case COLLECTOR:
+    case TILE_COLLECTOR:
         color = BLUE;
         break;
-    case SPAWNER:
+    case TILE_SPAWNER:
         color = GREEN;
         break;
     default:
@@ -54,7 +63,7 @@ Grid make_grid(const int width, const int height) {
     grid.tiles  = (Tile *)malloc(width * height * sizeof(Tile));
 
     for (int i = 0; i < width * height; i++) {
-        grid.tiles[i].type = GRASS;
+        grid.tiles[i].type = TILE_GRASS;
         grid.tiles[i].x    = i % width;
         grid.tiles[i].y    = i / width;
     }

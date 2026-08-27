@@ -13,6 +13,7 @@ DrawConfig make_draw_config(int tile_size, int tile_padding, float entity_size);
 
 typedef struct {
     TileType selected_building_type;
+    Entity * selected_entity;
 } UIState;
 
 int draw_button(const char *label, int x, int y, int width, int height);

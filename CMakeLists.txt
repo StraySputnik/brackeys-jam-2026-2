@@ -21,6 +21,8 @@ add_executable(game
         src/scene.c
         include/game.h
         src/game.c
+        include/ui.h
+        src/ui.c
 )
 
 target_include_directories(game PUBLIC include PRIVATE src)
