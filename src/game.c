@@ -11,6 +11,7 @@
 #define PROJECTILE_SPEED      16
 #define TOWER_ATTACK_INTERVAL 4
 #define TOWER_RANGE           3
+#define SPAWN_INTERVAL        2
 
 static const char *random_vampire_name() {
     const char *names[] = {
@@ -23,7 +24,6 @@ static const char *random_vampire_name() {
         "Scarlett",
         "Selene",
         "Igor",
-        "Chocula"
     };
 
     return names[GetRandomValue(0, sizeof(names) / sizeof(names[0]) - 1)];
@@ -141,6 +141,52 @@ static void randomize_monster_data(MonsterData *monster, const MonsterType type,
     }
 }
 
+static bool all_spawners_finished(Game *game) {
+    for (int i = 0; i < game->scene.grid.width; i++) {
+        for (int j = 0; j < game->scene.grid.height; j++) {
+            Tile *tile = get_tile(&game->scene.grid, i, j);
+            if (tile->type != TILE_SPAWNER) {
+                continue;
+            }
+
+            if (!tile->data.s.finished) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+static void next_wave(Game *game) {
+    game->current_wave++;
+    if (game->current_wave >= NUM_WAVES) {
+        game->current_wave--;
+        return;
+    }
+
+    for (int i = 0; i < game->scene.grid.width; i++) {
+        for (int j = 0; j < game->scene.grid.height; j++) {
+            Tile *tile = get_tile(&game->scene.grid, i, j);
+            if (tile->type != TILE_SPAWNER) {
+                continue;
+            }
+
+            tile->data.s.finished = false;
+        }
+    }
+}
+
+static bool all_entities_dead(const Game *game) {
+    for (EntityId i = 0; i < game->scene.entity_pool.count; i++) {
+        if (game->scene.entity_pool.entities[i].type != ENTITY_NULL) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 static void update_entity(Entity *entity, Game *game, const float delta_time) {
     switch (entity->type) {
     case ENTITY_MONSTER:
@@ -237,7 +283,7 @@ static void update_tile(Tile *tile, Game *game, const float delta_time) {
     switch (tile->type) {
     case TILE_TOWER:
         {
-            TowerData *data = &tile->data.tower;
+            TowerData *data = &tile->data.t;
             data->timer     += delta_time;
 
             if (data->timer >= TOWER_ATTACK_INTERVAL) {
@@ -268,23 +314,34 @@ static void update_tile(Tile *tile, Game *game, const float delta_time) {
         }
     case TILE_SPAWNER:
         {
-            SpawnerData *data = &tile->data.spawner;
+            SpawnerData *data = &tile->data.s;
             data->timer       += delta_time;
 
-            if (data->timer >= data->spawn_interval) {
+            if (data->timer >= SPAWN_INTERVAL) {
+                MonsterType type;
+                if (!spawn_queue_increment(&data->waves[game->current_wave], &type)) {
+                    data->finished = true;
+                    break;
+                }
+
                 data->timer            = 0.0f;
                 const Vector2 position = {
                     .x = ((float)tile->x + 0.5f) * (float)game->draw_config.tile_size,
                     .y = ((float)tile->y + 0.5f) * (float)game->draw_config.tile_size,
                 };
 
+                if (type == MONSTER_NONE) {
+                    break;
+                }
+
                 const EntityId id = spawn_entity(&game->scene.entity_pool, position, ENTITY_MONSTER);
                 MonsterData *  m  = &get_entity(&game->scene.entity_pool, id)->data.m;
 
                 m->direction    = data->direction;
-                m->monster_type = data->monster_type;
+                m->monster_type = type;
                 m->marked       = false;
-                randomize_monster_data(m, m->monster_type, true);
+
+                randomize_monster_data(m, m->monster_type, GetRandomValue(0, 1));
             }
 
             break;
@@ -352,6 +409,8 @@ Game load_game(const char *filename, const DrawConfig draw_config) {
     game.ui_state.selected_entity        = NULL;
     game.castle_health                   = INITIAL_CASTLE_HEALTH;
     game.resources                       = 10;
+    game.current_wave                    = 0;
+    game.wave_finished                   = false;
 
     const int   grid_width         = game.scene.grid.width * game.draw_config.tile_size / 2;
     const int   grid_height        = game.scene.grid.height * game.draw_config.tile_size / 2;
@@ -399,6 +458,13 @@ void draw_game(const Game *game) {
 void handle_ui(Game *game) {
     DrawText(TextFormat("HP: %d", game->castle_health), 10, 10, 20, RED);
     DrawText(TextFormat("Resources: %d", game->resources), 80, 10, 20, YELLOW);
+    DrawText(TextFormat("Wave %d/%d", game->current_wave + 1, NUM_WAVES), 590, 10, 20, RAYWHITE);
+
+    if (game->current_wave < NUM_WAVES - 1 && all_spawners_finished(game) && all_entities_dead(game)) {
+        if (draw_button("Next Wave", 1120, 40, 150, 40)) {
+            next_wave(game);
+        }
+    }
 
     if (draw_button("Tower", 10, 40, 150, 40)) {
         game->ui_state.selected_building_type = TILE_TOWER;
@@ -478,7 +544,7 @@ void handle_ui(Game *game) {
                 game->resources -= build_price(building);
                 tile->type      = building;
                 if (building == TILE_TOWER) {
-                    tile->data.tower.timer = 0.0f;
+                    tile->data.t.timer = 0.0f;
                 }
             }
         }

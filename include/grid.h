@@ -24,10 +24,23 @@ typedef struct {
 } TowerData;
 
 typedef struct {
+    MonsterType *ptr;
+    size_t       size;
+    size_t       current;
+} SpawnQueue;
+
+SpawnQueue make_spawn_queue();
+void       delete_spawn_queue(SpawnQueue *queue);
+
+void spawn_queue_push(SpawnQueue *queue, MonsterType type);
+bool spawn_queue_increment(SpawnQueue *queue, MonsterType *out_type);
+
+typedef struct {
     Vector2     direction;
     float       timer;
-    float       spawn_interval;
-    MonsterType monster_type;
+    SpawnQueue *waves;
+    size_t      wave_count;
+    bool        finished;
 } SpawnerData;
 
 typedef struct {
@@ -36,8 +49,8 @@ typedef struct {
     int      y;
 
     union {
-        TowerData   tower;
-        SpawnerData spawner;
+        TowerData   t;
+        SpawnerData s;
     } data;
 } Tile;
 

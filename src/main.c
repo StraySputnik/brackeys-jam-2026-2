@@ -3,19 +3,11 @@
 #include <raylib.h>
 
 int main() {
-    Game game = load_game("scene.txt", make_draw_config(64, 0, 24.0f));
+    Game game = load_game("scene.txt", make_draw_config(56, 0, 20.0f));
 
     SetConfigFlags(FLAG_VSYNC_HINT | FLAG_MSAA_4X_HINT);
     InitWindow(1280, 720, "Game");
     SetExitKey(KEY_NULL);
-
-    Tile *spawner = get_tile(&game.scene.grid, 0, 1);
-
-    spawner->type                        = TILE_SPAWNER;
-    spawner->data.spawner.direction      = (Vector2){.x = 1, .y = 0};
-    spawner->data.spawner.monster_type   = MONSTER_VAMPIRE;
-    spawner->data.spawner.timer          = 0.0f;
-    spawner->data.spawner.spawn_interval = 2.0f;
 
     while (!WindowShouldClose()) {
         update_game(&game, GetFrameTime());

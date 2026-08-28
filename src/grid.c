@@ -13,6 +13,41 @@ int build_price(const TileType tile) {
     }
 }
 
+SpawnQueue make_spawn_queue() {
+    SpawnQueue queue;
+    queue.ptr     = NULL;
+    queue.size    = 0;
+    queue.current = 0;
+    return queue;
+}
+
+void delete_spawn_queue(SpawnQueue *queue) {
+    free(queue->ptr);
+}
+
+void spawn_queue_push(SpawnQueue *queue, const MonsterType type) {
+    if (queue->ptr) {
+        queue->ptr              = realloc(queue->ptr, (queue->size + 1) * sizeof(MonsterType));
+        queue->ptr[queue->size] = type;
+        queue->size++;
+    } else {
+        queue->ptr     = malloc(sizeof(MonsterType));
+        queue->ptr[0]  = type;
+        queue->size    = 1;
+        queue->current = 0;
+    }
+}
+
+bool spawn_queue_increment(SpawnQueue *queue, MonsterType *out_type) {
+    queue->current++;
+    if (queue->current >= queue->size) {
+        return false;
+    }
+
+    *out_type = queue->ptr[queue->current];
+    return true;
+}
+
 void draw_tile(const Tile *tile, const int tile_size, const int tile_padding) {
     Color color;
 
@@ -72,6 +107,19 @@ Grid make_grid(const int width, const int height) {
 }
 
 void delete_grid(Grid *grid) {
+    for (int i = 0; i < grid->width; i++) {
+        for (int j = 0; j < grid->height; j++) {
+            Tile *tile = get_tile(grid, i, j);
+            if (tile->type != TILE_SPAWNER) {
+                continue;
+            }
+
+            for (int w = 0; w < tile->data.s.wave_count; w++) {
+                delete_spawn_queue(&tile->data.s.waves[w]);
+            }
+        }
+    }
+
     free(grid->tiles);
     grid->tiles = NULL;
 }

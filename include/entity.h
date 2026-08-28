@@ -15,6 +15,7 @@ typedef enum {
 } EntityType;
 
 typedef enum {
+    MONSTER_NONE,
     MONSTER_VAMPIRE,
     MONSTER_WEREWOLF,
     MONSTER_GHOST,
