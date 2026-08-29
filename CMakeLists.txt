@@ -23,6 +23,8 @@ add_executable(game
         src/game.c
         include/ui.h
         src/ui.c
+        include/audio.h
+        src/audio.c
 )
 
 target_include_directories(game PUBLIC include PRIVATE src)

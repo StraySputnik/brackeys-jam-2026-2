@@ -4,8 +4,8 @@
 #include "grid.h"
 #include "entity.h"
 
-#define NUM_SPAWNERS 6
-#define NUM_WAVES    2
+#define SPAWNER_COUNT 6
+#define WAVE_COUNT    2
 
 typedef struct {
     Grid       grid;

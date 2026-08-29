@@ -1,6 +1,7 @@
 #ifndef GAME_GAME_H
 #define GAME_GAME_H
 
+#include "audio.h"
 #include "scene.h"
 
 typedef struct {
@@ -22,10 +23,12 @@ typedef struct {
     Scene      scene;
     DrawConfig draw_config;
     UIState    ui_state;
+    AudioStore audio_store;
     Camera2D   camera;
     int        castle_health;
     int        resources;
     int        current_wave;
+    float      pause_timer;
 } Game;
 
 Game load_game(const char *filename, DrawConfig draw_config);

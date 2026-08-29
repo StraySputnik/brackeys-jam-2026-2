@@ -35,3 +35,32 @@ int draw_button(const char *label, const int x, const int y, const int width, co
 
     return out;
 }
+
+int draw_qte(const MonsterData monster) {
+    draw_box(440, 160, 400, 400);
+    DrawText(
+        TextFormat(
+            "Name: %s%s\nAge: %d\nMonster Type: %s\nWeakness: %s\nStrength: %s\n",
+            title_to_string(monster.title),
+            monster.name,
+            monster.age,
+            monster_type_to_string(monster.monster_type),
+            weakness_to_string(monster.weakness),
+            strength_to_string(monster.strength)
+        ),
+        450,
+        180,
+        20,
+        BLACK
+    );
+
+    if (draw_button("Slay", 450, 460, 380, 40)) {
+        return 1;
+    }
+
+    if (draw_button("Spare", 450, 510, 380, 40)) {
+        return 2;
+    }
+
+    return 0;
+}

@@ -33,14 +33,14 @@ static void get_file_dimensions(FILE *file, int *width, int *height) {
 }
 
 static void load_wave(FILE *file, Scene *scene, const int wave_idx) {
-    SpawnQueue *queues = malloc(NUM_SPAWNERS * sizeof(SpawnQueue));
-    for (int i = 0; i < NUM_SPAWNERS; i++) {
+    SpawnQueue *queues = malloc(SPAWNER_COUNT * sizeof(SpawnQueue));
+    for (int i = 0; i < SPAWNER_COUNT; i++) {
         queues[i] = make_spawn_queue();
     }
 
     int c   = fgetc(file);
     int idx = 0;
-    while (c != EOF && idx < NUM_SPAWNERS) {
+    while (c != EOF && idx < SPAWNER_COUNT) {
         if (c == '-') {
             idx++;
         }
@@ -98,7 +98,7 @@ static void load_waves(Scene *scene) {
         char *filename = malloc(10);
         sprintf(filename, "wave%c.txt", '0' + i);
         FILE *file = fopen(filename, "r");
-        if (!file || i > NUM_WAVES) {
+        if (!file || i > WAVE_COUNT) {
             break;
         }
 

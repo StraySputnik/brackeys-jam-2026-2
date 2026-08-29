@@ -47,13 +47,14 @@ typedef enum {
 const char *title_to_string(Title title);
 
 typedef enum {
-    FOOD_NONE,
-    FOOD_BLOOD,
-    FOOD_MEAT,
-    FOOD_TYPE_COUNT,
-} Food;
+    STRENGTH_NONE,
+    STRENGTH_BLOOD,
+    STRENGTH_FULL_MOON,
+    STRENGTH_FEAR,
+    STRENGTH_TYPE_COUNT,
+} Strength;
 
-const char *food_to_string(Food food);
+const char *strength_to_string(Strength food);
 
 typedef struct {
     const char *name;
@@ -61,12 +62,20 @@ typedef struct {
     MonsterType monster_type;
     Title       title;
     Weakness    weakness;
-    Food        favored_food;
+    Strength    strength;
     int         age;
+    int         health;
     bool        marked;
 } MonsterData;
 
+const char *random_vampire_name();
+const char *random_werewolf_name();
+const char *random_ghost_name();
+
 bool is_friendly(MonsterData monster);
+int get_health_for_monster(MonsterType type);
+
+void randomize_monster_data(MonsterData *monster, MonsterType type, bool friendly);
 
 typedef struct {
     Vector2 direction;

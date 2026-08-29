@@ -49,33 +49,152 @@ const char *title_to_string(const Title title) {
     }
 }
 
-const char *food_to_string(const Food food) {
+const char *strength_to_string(const Strength food) {
     switch (food) {
-    case FOOD_NONE:
+    case STRENGTH_NONE:
         return "None";
-    case FOOD_BLOOD:
+    case STRENGTH_BLOOD:
         return "Blood";
-    case FOOD_MEAT:
-        return "Meat";
+    case STRENGTH_FULL_MOON:
+        return "Full Moon";
+    case STRENGTH_FEAR:
+        return "Fear";
     default:
         return "Unknown";
     }
 }
 
+const char *random_vampire_name() {
+    const char *names[] = {
+        "Dracula",
+        "Vlad",
+        "Draven",
+        "Crimson",
+        "Lazarus",
+        "Igor",
+    };
+
+    return names[GetRandomValue(0, sizeof(names) / sizeof(names[0]) - 1)];
+}
+
+const char *random_werewolf_name() {
+    const char *names[] = {
+        "Fenrir",
+        "Remus",
+        "Cynric",
+        "Wren",
+        "Lyra",
+        "Fleabag",
+        "Wolferine",
+    };
+
+    return names[GetRandomValue(0, sizeof(names) / sizeof(names[0]) - 1)];
+}
+
+const char *random_ghost_name() {
+    const char *names[] = {
+        "Liam",
+        "Celeste",
+        "Mary",
+        "Blair",
+        "Specter",
+        "Agnes",
+    };
+
+    return names[GetRandomValue(0, sizeof(names) / sizeof(names[0]) - 1)];
+}
+
 bool is_friendly(const MonsterData monster) {
     switch (monster.monster_type) {
     case MONSTER_VAMPIRE:
-        return monster.age <= 800 && monster.favored_food == FOOD_BLOOD &&
+        return monster.age <= 800 && monster.strength == STRENGTH_BLOOD &&
             monster.weakness & (WEAKNESS_GARLIC | WEAKNESS_SUN) && monster.title != TITLE_DUKE &&
             monster.title != TITLE_SIR;
     case MONSTER_WEREWOLF:
-        return monster.age <= 60 && monster.favored_food == FOOD_MEAT &&
+        return monster.age <= 60 && monster.strength == STRENGTH_FULL_MOON &&
             monster.weakness == WEAKNESS_SILVER && monster.title == TITLE_NONE;
     case MONSTER_GHOST:
-        return monster.age <= 2000 && monster.favored_food == FOOD_NONE &&
+        return monster.age <= 2000 && monster.strength == STRENGTH_FEAR &&
             monster.weakness & (WEAKNESS_HOLY_WATER | WEAKNESS_SALT);
     default:
         return false;
+    }
+}
+
+int get_health_for_monster(const MonsterType type) {
+    switch (type) {
+    case MONSTER_VAMPIRE:
+        return 2;
+    case MONSTER_WEREWOLF:
+        return 4;
+    case MONSTER_GHOST:
+        return 1;
+    default:
+        return 0;
+    }
+}
+
+void randomize_monster_data(MonsterData *monster, const MonsterType type, const bool friendly) {
+    monster->monster_type = type;
+
+    if (friendly) {
+        switch (type) {
+        case MONSTER_WEREWOLF:
+            monster->name = random_werewolf_name();
+            monster->title    = TITLE_NONE;
+            monster->age      = GetRandomValue(18, 60);
+            monster->weakness = WEAKNESS_SILVER;
+            monster->strength = STRENGTH_FULL_MOON;
+            break;
+        case MONSTER_VAMPIRE:
+            monster->name = random_vampire_name();
+            monster->title    = TITLE_NONE + GetRandomValue(0, 1);
+            monster->age      = GetRandomValue(18, 800);
+            monster->weakness = WEAKNESS_GARLIC + GetRandomValue(0, 1);
+            monster->strength = STRENGTH_BLOOD;
+            break;
+        case MONSTER_GHOST:
+            monster->name = random_ghost_name();
+            monster->title    = TITLE_NONE;
+            monster->age      = GetRandomValue(18, 2000);
+            monster->weakness = WEAKNESS_HOLY_WATER + GetRandomValue(0, 1);
+            monster->strength = STRENGTH_NONE;
+            break;
+        default:
+            break;
+        }
+    } else {
+        do {
+            monster->title    = GetRandomValue(1, TITLE_COUNT - 1);
+            monster->weakness = GetRandomValue(1, WEAKNESS_TYPE_COUNT - 1);
+            monster->strength = GetRandomValue(1, STRENGTH_TYPE_COUNT - 1);
+
+            const int age_group = GetRandomValue(0, 2);
+            switch (age_group) {
+            case 0:
+                monster->age = GetRandomValue(18, 60);
+                break;
+            case 1:
+                monster->age = GetRandomValue(18, 800);
+                break;
+            default:
+                monster->age = GetRandomValue(18, 2000);
+                break;
+            }
+
+            const int name_group = GetRandomValue(0, 2);
+            switch (name_group) {
+            case 0:
+                monster->name = random_vampire_name();
+                break;
+            case 1:
+                monster->name = random_werewolf_name();
+                break;
+            default:
+                monster->name = random_ghost_name();
+                break;
+            }
+        } while (is_friendly(*monster));
     }
 }
 
