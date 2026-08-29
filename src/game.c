@@ -12,6 +12,7 @@
 #define TOWER_ATTACK_INTERVAL 4
 #define TOWER_RANGE           3
 #define SPAWN_INTERVAL        2
+#define COLLECT_INTERVAL      5
 
 static const char *random_vampire_name() {
     const char *names[] = {
@@ -158,6 +159,20 @@ static bool all_spawners_finished(Game *game) {
     return true;
 }
 
+static bool all_entities_dead(const Game *game) {
+    for (EntityId i = 0; i < game->scene.entity_pool.count; i++) {
+        if (game->scene.entity_pool.entities[i].type != ENTITY_NULL) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+static bool wave_finished(Game *game) {
+    return game->current_wave < NUM_WAVES - 1 && all_spawners_finished(game) && all_entities_dead(game);
+}
+
 static void next_wave(Game *game) {
     game->current_wave++;
     if (game->current_wave >= NUM_WAVES) {
@@ -175,16 +190,6 @@ static void next_wave(Game *game) {
             tile->data.s.finished = false;
         }
     }
-}
-
-static bool all_entities_dead(const Game *game) {
-    for (EntityId i = 0; i < game->scene.entity_pool.count; i++) {
-        if (game->scene.entity_pool.entities[i].type != ENTITY_NULL) {
-            return false;
-        }
-    }
-
-    return true;
 }
 
 static void update_entity(Entity *entity, Game *game, const float delta_time) {
@@ -226,7 +231,16 @@ static void update_entity(Entity *entity, Game *game, const float delta_time) {
             return;
         }
 
-        if (Vector2Distance(entity->position, tile_pos) > 0.02f * (float)game->draw_config.tile_size) {
+        MonsterData data = entity->data.m;
+        data.direction.x *= 0.02f * (float)game->draw_config.tile_size;
+        data.direction.y *= 0.02f * (float)game->draw_config.tile_size;
+
+        const bool within_tile = Vector2Distance(entity->position, tile_pos) <=
+            0.02f * (float)game->draw_config.tile_size;
+        const bool bypassed_tile = Vector2Distance(Vector2Subtract(entity->position, data.direction), tile_pos) <=
+            0.02f * (float)game->draw_config.tile_size;
+
+        if (!within_tile && !bypassed_tile) {
             return;
         }
 
@@ -341,7 +355,31 @@ static void update_tile(Tile *tile, Game *game, const float delta_time) {
                 m->monster_type = type;
                 m->marked       = false;
 
-                randomize_monster_data(m, m->monster_type, GetRandomValue(0, 1));
+                bool friendly = false;
+                if (data->friendly_count > 0) {
+                    friendly = GetRandomValue(0, 1);
+                    if (friendly) {
+                        data->friendly_count--;
+                    }
+                }
+
+                randomize_monster_data(m, m->monster_type, friendly);
+            }
+
+            break;
+        }
+    case TILE_COLLECTOR:
+        {
+            CollectorData *data = &tile->data.c;
+            data->timer         += delta_time;
+
+            if (wave_finished(game)) {
+                data->timer = 0.0f;
+            }
+
+            if (data->timer >= COLLECT_INTERVAL) {
+                data->timer     = 0.0f;
+                game->resources += 1;
             }
 
             break;
@@ -410,7 +448,6 @@ Game load_game(const char *filename, const DrawConfig draw_config) {
     game.castle_health                   = INITIAL_CASTLE_HEALTH;
     game.resources                       = 10;
     game.current_wave                    = 0;
-    game.wave_finished                   = false;
 
     const int   grid_width         = game.scene.grid.width * game.draw_config.tile_size / 2;
     const int   grid_height        = game.scene.grid.height * game.draw_config.tile_size / 2;
@@ -460,7 +497,7 @@ void handle_ui(Game *game) {
     DrawText(TextFormat("Resources: %d", game->resources), 80, 10, 20, YELLOW);
     DrawText(TextFormat("Wave %d/%d", game->current_wave + 1, NUM_WAVES), 590, 10, 20, RAYWHITE);
 
-    if (game->current_wave < NUM_WAVES - 1 && all_spawners_finished(game) && all_entities_dead(game)) {
+    if (wave_finished(game)) {
         if (draw_button("Next Wave", 1120, 40, 150, 40)) {
             next_wave(game);
         }
@@ -468,6 +505,10 @@ void handle_ui(Game *game) {
 
     if (draw_button("Tower", 10, 40, 150, 40)) {
         game->ui_state.selected_building_type = TILE_TOWER;
+    }
+
+    if (draw_button("Collector", 10, 90, 150, 40)) {
+        game->ui_state.selected_building_type = TILE_COLLECTOR;
     }
 
     if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
@@ -545,6 +586,10 @@ void handle_ui(Game *game) {
                 tile->type      = building;
                 if (building == TILE_TOWER) {
                     tile->data.t.timer = 0.0f;
+                }
+
+                if (building == TILE_COLLECTOR) {
+                    tile->data.c.timer = 0.0f;
                 }
             }
         }

@@ -86,6 +86,7 @@ static void load_wave(FILE *file, Scene *scene, const int wave_idx) {
             }
 
             tile->data.s.waves[wave_idx - 1] = queues[spawner_idx];
+            tile->data.s.friendly_count = (int)queues[spawner_idx].size / 2;
             spawner_idx++;
         }
     }
@@ -153,35 +154,39 @@ Scene load_scene(const char *filename) {
             break;
         case '^':
             get_tile(&scene.grid, x, y)->type = TILE_SPAWNER;
-            get_tile(&scene.grid, x, y)->data.s.waves      = NULL;
-            get_tile(&scene.grid, x, y)->data.s.wave_count = 0;
-            get_tile(&scene.grid, x, y)->data.s.timer      = 0;
-            get_tile(&scene.grid, x, y)->data.s.direction  = (Vector2){.x = 0, .y = -1};
-            get_tile(&scene.grid, x, y)->data.s.finished   = false;
+            get_tile(&scene.grid, x, y)->data.s.waves          = NULL;
+            get_tile(&scene.grid, x, y)->data.s.wave_count     = 0;
+            get_tile(&scene.grid, x, y)->data.s.timer          = 0;
+            get_tile(&scene.grid, x, y)->data.s.friendly_count = 0;
+            get_tile(&scene.grid, x, y)->data.s.direction      = (Vector2){.x = 0, .y = -1};
+            get_tile(&scene.grid, x, y)->data.s.finished       = false;
             break;
         case '>':
             get_tile(&scene.grid, x, y)->type = TILE_SPAWNER;
-            get_tile(&scene.grid, x, y)->data.s.waves      = NULL;
-            get_tile(&scene.grid, x, y)->data.s.wave_count = 0;
-            get_tile(&scene.grid, x, y)->data.s.timer      = 0;
-            get_tile(&scene.grid, x, y)->data.s.direction  = (Vector2){.x = 1, .y = 0};
-            get_tile(&scene.grid, x, y)->data.s.finished   = false;
+            get_tile(&scene.grid, x, y)->data.s.waves          = NULL;
+            get_tile(&scene.grid, x, y)->data.s.wave_count     = 0;
+            get_tile(&scene.grid, x, y)->data.s.timer          = 0;
+            get_tile(&scene.grid, x, y)->data.s.friendly_count = 0;
+            get_tile(&scene.grid, x, y)->data.s.direction      = (Vector2){.x = 1, .y = 0};
+            get_tile(&scene.grid, x, y)->data.s.finished       = false;
             break;
         case '<':
             get_tile(&scene.grid, x, y)->type = TILE_SPAWNER;
-            get_tile(&scene.grid, x, y)->data.s.waves      = NULL;
-            get_tile(&scene.grid, x, y)->data.s.wave_count = 0;
-            get_tile(&scene.grid, x, y)->data.s.timer      = 0;
-            get_tile(&scene.grid, x, y)->data.s.direction  = (Vector2){.x = -1, .y = 0};
-            get_tile(&scene.grid, x, y)->data.s.finished   = false;
+            get_tile(&scene.grid, x, y)->data.s.waves          = NULL;
+            get_tile(&scene.grid, x, y)->data.s.wave_count     = 0;
+            get_tile(&scene.grid, x, y)->data.s.timer          = 0;
+            get_tile(&scene.grid, x, y)->data.s.friendly_count = 0;
+            get_tile(&scene.grid, x, y)->data.s.direction      = (Vector2){.x = -1, .y = 0};
+            get_tile(&scene.grid, x, y)->data.s.finished       = false;
             break;
         case '!':
             get_tile(&scene.grid, x, y)->type = TILE_SPAWNER;
-            get_tile(&scene.grid, x, y)->data.s.waves      = NULL;
-            get_tile(&scene.grid, x, y)->data.s.wave_count = 0;
-            get_tile(&scene.grid, x, y)->data.s.timer      = 0;
-            get_tile(&scene.grid, x, y)->data.s.direction  = (Vector2){.x = 0, .y = 1};
-            get_tile(&scene.grid, x, y)->data.s.finished   = false;
+            get_tile(&scene.grid, x, y)->data.s.waves          = NULL;
+            get_tile(&scene.grid, x, y)->data.s.wave_count     = 0;
+            get_tile(&scene.grid, x, y)->data.s.timer          = 0;
+            get_tile(&scene.grid, x, y)->data.s.friendly_count = 0;
+            get_tile(&scene.grid, x, y)->data.s.direction      = (Vector2){.x = 0, .y = 1};
+            get_tile(&scene.grid, x, y)->data.s.finished       = false;
             break;
         default:
             break;

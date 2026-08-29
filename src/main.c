@@ -10,7 +10,7 @@ int main() {
     SetExitKey(KEY_NULL);
 
     while (!WindowShouldClose()) {
-        update_game(&game, GetFrameTime());
+        update_game(&game, GetFrameTime() * 5);
 
         BeginDrawing();
         ClearBackground(BLACK);

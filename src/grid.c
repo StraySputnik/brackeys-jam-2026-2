@@ -8,6 +8,8 @@ int build_price(const TileType tile) {
     switch (tile) {
     case TILE_TOWER:
         return 5;
+    case TILE_COLLECTOR:
+        return 10;
     default:
         return 1023;
     }

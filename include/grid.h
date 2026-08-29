@@ -20,10 +20,6 @@ typedef enum {
 int build_price(TileType tile);
 
 typedef struct {
-    float timer;
-} TowerData;
-
-typedef struct {
     MonsterType *ptr;
     size_t       size;
     size_t       current;
@@ -36,12 +32,21 @@ void spawn_queue_push(SpawnQueue *queue, MonsterType type);
 bool spawn_queue_increment(SpawnQueue *queue, MonsterType *out_type);
 
 typedef struct {
+    float timer;
+} TowerData;
+
+typedef struct {
     Vector2     direction;
     float       timer;
     SpawnQueue *waves;
     size_t      wave_count;
+    int         friendly_count;
     bool        finished;
 } SpawnerData;
+
+typedef struct {
+    float timer;
+} CollectorData;
 
 typedef struct {
     TileType type;
@@ -49,8 +54,9 @@ typedef struct {
     int      y;
 
     union {
-        TowerData   t;
-        SpawnerData s;
+        TowerData     t;
+        SpawnerData   s;
+        CollectorData c;
     } data;
 } Tile;
 

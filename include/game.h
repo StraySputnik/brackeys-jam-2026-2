@@ -26,7 +26,6 @@ typedef struct {
     int        castle_health;
     int        resources;
     int        current_wave;
-    bool       wave_finished;
 } Game;
 
 Game load_game(const char *filename, DrawConfig draw_config);
