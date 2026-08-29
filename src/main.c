@@ -18,7 +18,9 @@ int main() {
             PlaySound(music);
         }
 
-        update_game(&game, GetFrameTime());
+        if (update_game(&game, GetFrameTime() * 3) == -1) {
+            break;
+        }
 
         BeginDrawing();
         ClearBackground(BLACK);

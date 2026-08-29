@@ -332,90 +332,54 @@ static void update_tiles(Game *game, const float delta_time) {
     }
 }
 
-DrawConfig make_draw_config(const int tile_size, const int tile_padding, const float entity_size) {
-    DrawConfig config;
-    config.tile_size    = tile_size;
-    config.tile_padding = tile_padding;
-    config.entity_size  = entity_size;
-    return config;
-}
-
-Game load_game(const char *filename, const DrawConfig draw_config) {
-    Game game;
-    game.scene                           = load_scene(filename);
-    game.draw_config                     = draw_config;
-    game.ui_state.selected_building_type = TILE_GRASS;
-    game.ui_state.selected_entity        = NULL;
-    game.audio_store                     = make_audio_store();
-
-    audio_store_load(&game.audio_store, "sfx/CastleDamaged.wav", "CastleDamage", 1.0f);
-    audio_store_load(&game.audio_store, "sfx/ClickMenuButton.wav", "ClickMenuButton", 1.0f);
-    audio_store_load(&game.audio_store, "sfx/CloseInfoPage.wav", "CloseInfoPage", 3.0f);
-    audio_store_load(&game.audio_store, "sfx/EnemyDies.wav", "EnemyDeath", 3.0f);
-    audio_store_load(&game.audio_store, "sfx/GenericTowerBuild.wav", "TowerBuild", 1.0f);
-    audio_store_load(&game.audio_store, "sfx/GenericTowerShoot.wav", "TowerShoot", 1.0f);
-    audio_store_load(&game.audio_store, "sfx/GhostHit.wav", "GhostHit", 1.0f);
-    audio_store_load(&game.audio_store, "sfx/OpenInfoPage.wav", "OpenInfoPage", 3.0f);
-    audio_store_load(&game.audio_store, "sfx/VampireHit.wav", "VampireHit", 1.0f);
-    audio_store_load(&game.audio_store, "sfx/WaveStart.wav", "WaveStart", 1.0f);
-    audio_store_load(&game.audio_store, "sfx/WerewolfHit.wav", "WerewolfHit", 1.0f);
-    audio_store_load(&game.audio_store, "sfx/WrongEnemyKilled.wav", "WrongEnemyKilled", 1.0f);
-
-    game.castle_health = INITIAL_CASTLE_HEALTH;
-    game.resources     = 10;
-    game.current_wave  = 0;
-    game.pause_timer   = 0.0f;
-
-    const int   grid_width         = game.scene.grid.width * game.draw_config.tile_size / 2;
-    const int   grid_height        = game.scene.grid.height * game.draw_config.tile_size / 2;
-    const float half_screen_width  = 1280.0f / 2.0f;
-    const float half_screen_height = 720.0f / 2.0f;
-
-    game.camera = (Camera2D){
-        .offset = (Vector2){
-            .x = 0.0f, .y = 0.0f
-        },
-        .rotation = 0.0f,
-        .target   = (Vector2){
-            .x = (float)grid_width - (float)half_screen_width,
-            .y = (float)grid_height - (float)half_screen_height
-        },
-        .zoom = 1.0f,
-    };
-
-    return game;
-}
-
-void unload_game(Game *game) {
-    unload_scene(&game->scene);
-    delete_audio_store(&game->audio_store);
-}
-
-void update_game(Game *game, float delta_time) {
-    game->pause_timer -= delta_time;
-    if (game->pause_timer <= 0.0f) {
-        game->ui_state.selected_entity = NULL;
+static void handle_title_ui(Game *game) {
+    DrawText("TITLE", 515, 120, 72, WHITE);
+    if (draw_button("Start", 500, 240, 280, 40)) {
+        play_sfx(&game->audio_store, "ClickMenuButton");
+        game->scene_idx = 1;
     }
 
-    if (game->ui_state.selected_entity) {
-        delta_time = 0.0f;
+    if (draw_button("Quit", 500, 300, 280, 40)) {
+        play_sfx(&game->audio_store, "ClickMenuButton");
+        game->scene_idx = -1;
+    }
+}
+
+static void handle_lose_ui(Game *game) {
+    DrawText("YOU LOST!", 450, 120, 72, RED);
+    if (draw_button("Restart", 500, 240, 280, 40)) {
+        game->ui_state.selected_building_type = TILE_GRASS;
+        game->ui_state.selected_entity        = NULL;
+        game->castle_health                   = INITIAL_CASTLE_HEALTH;
+        game->resources                       = 10;
+        game->current_wave                    = 0;
+        game->pause_timer                     = 0.0f;
+        game->scene = load_scene(game->filename);
+
+        play_sfx(&game->audio_store, "ClickMenuButton");
+        game->scene_idx = 1;
     }
 
-    update_tiles(game, delta_time);
-    update_entities(game, delta_time);
+    if (draw_button("Quit", 500, 300, 280, 40)) {
+        play_sfx(&game->audio_store, "ClickMenuButton");
+        game->scene_idx = -1;
+    }
 }
 
-void draw_game(const Game *game) {
-    BeginMode2D(game->camera);
-    draw_scene(
-        &game->scene, game->draw_config.tile_size,
-        game->draw_config.tile_padding,
-        game->draw_config.entity_size
-    );
-    EndMode2D();
+static void handle_win_ui(Game *game) {
+    DrawText("YOU WON!", 470, 120, 72, GOLD);
+
+    DrawText("-- Credits --", 535, 220, 32, WHITE);
+    DrawText("Code - StraySputnik", 480, 320, 32, WHITE);
+    DrawText("Music & SFX - Simulacrum + Itroma", 380, 360, 32, WHITE);
+
+    if (draw_button("Quit", 500, 500, 280, 40)) {
+        play_sfx(&game->audio_store, "ClickMenuButton");
+        game->scene_idx = -1;
+    }
 }
 
-void handle_ui(Game *game) {
+static void handle_ingame_ui(Game *game) {
     DrawText(TextFormat("HP: %d", game->castle_health), 10, 10, 20, RED);
     DrawText(TextFormat("Resources: %d", game->resources), 80, 10, 20, YELLOW);
     DrawText(TextFormat("Wave %d/%d", game->current_wave + 1, WAVE_COUNT), 590, 10, 20, RAYWHITE);
@@ -475,7 +439,7 @@ void handle_ui(Game *game) {
         if (result != 0) {
             play_sfx(&game->audio_store, "CloseInfoPage");
             game->ui_state.selected_entity = NULL;
-            game->pause_timer = 0.0f;
+            game->pause_timer              = 0.0f;
         }
 
         return;
@@ -541,5 +505,131 @@ void handle_ui(Game *game) {
         EndMode2D();
     } else {
         game->ui_state.selected_building_type = TILE_GRASS;
+    }
+}
+
+DrawConfig make_draw_config(const int tile_size, const int tile_padding, const float entity_size) {
+    DrawConfig config;
+    config.tile_size    = tile_size;
+    config.tile_padding = tile_padding;
+    config.entity_size  = entity_size;
+    return config;
+}
+
+Game load_game(const char *filename, const DrawConfig draw_config) {
+    Game game;
+    game.filename                        = filename;
+    game.scene                           = load_scene(filename);
+    game.draw_config                     = draw_config;
+    game.ui_state.selected_building_type = TILE_GRASS;
+    game.ui_state.selected_entity        = NULL;
+    game.audio_store                     = make_audio_store();
+
+    audio_store_load(&game.audio_store, "sfx/CastleDamaged.wav", "CastleDamage", 1.0f);
+    audio_store_load(&game.audio_store, "sfx/ClickMenuButton.wav", "ClickMenuButton", 1.0f);
+    audio_store_load(&game.audio_store, "sfx/CloseInfoPage.wav", "CloseInfoPage", 3.0f);
+    audio_store_load(&game.audio_store, "sfx/EnemyDies.wav", "EnemyDeath", 3.0f);
+    audio_store_load(&game.audio_store, "sfx/GenericTowerBuild.wav", "TowerBuild", 1.0f);
+    audio_store_load(&game.audio_store, "sfx/GenericTowerShoot.wav", "TowerShoot", 1.0f);
+    audio_store_load(&game.audio_store, "sfx/GhostHit.wav", "GhostHit", 1.0f);
+    audio_store_load(&game.audio_store, "sfx/OpenInfoPage.wav", "OpenInfoPage", 3.0f);
+    audio_store_load(&game.audio_store, "sfx/VampireHit.wav", "VampireHit", 1.0f);
+    audio_store_load(&game.audio_store, "sfx/WaveStart.wav", "WaveStart", 1.0f);
+    audio_store_load(&game.audio_store, "sfx/WerewolfHit.wav", "WerewolfHit", 1.0f);
+    audio_store_load(&game.audio_store, "sfx/WrongEnemyKilled.wav", "WrongEnemyKilled", 1.0f);
+
+    game.castle_health = INITIAL_CASTLE_HEALTH;
+    game.resources     = 10;
+    game.current_wave  = 0;
+    game.pause_timer   = 0.0f;
+    game.scene_idx     = 0;
+
+    const int   grid_width         = game.scene.grid.width * game.draw_config.tile_size / 2;
+    const int   grid_height        = game.scene.grid.height * game.draw_config.tile_size / 2;
+    const float half_screen_width  = 1280.0f / 2.0f;
+    const float half_screen_height = 720.0f / 2.0f;
+
+    game.camera = (Camera2D){
+        .offset = (Vector2){
+            .x = 0.0f, .y = 0.0f
+        },
+        .rotation = 0.0f,
+        .target   = (Vector2){
+            .x = (float)grid_width - (float)half_screen_width,
+            .y = (float)grid_height - (float)half_screen_height
+        },
+        .zoom = 1.0f,
+    };
+
+    return game;
+}
+
+void unload_game(Game *game) {
+    unload_scene(&game->scene);
+    delete_audio_store(&game->audio_store);
+}
+
+int update_game(Game *game, float delta_time) {
+    if (game->current_wave == WAVE_COUNT - 1) {
+        game->scene_idx = 3;
+    }
+
+    if (game->castle_health <= 0) {
+        game->scene_idx = 2;
+    }
+
+    if (IsKeyPressed(KEY_E)) {
+        game->scene_idx++;
+    }
+
+    if (game->scene_idx != 1) {
+        return game->scene_idx;
+    }
+
+    game->pause_timer -= delta_time;
+    if (game->pause_timer <= 0.0f) {
+        game->ui_state.selected_entity = NULL;
+    }
+
+    if (game->ui_state.selected_entity) {
+        delta_time = 0.0f;
+    }
+
+    update_tiles(game, delta_time);
+    update_entities(game, delta_time);
+
+    return game->scene_idx;
+}
+
+void draw_game(const Game *game) {
+    if (game->scene_idx != 1) {
+        return;
+    }
+
+    BeginMode2D(game->camera);
+    draw_scene(
+        &game->scene, game->draw_config.tile_size,
+        game->draw_config.tile_padding,
+        game->draw_config.entity_size
+    );
+    EndMode2D();
+}
+
+void handle_ui(Game *game) {
+    switch (game->scene_idx) {
+    case 0:
+        handle_title_ui(game);
+        break;
+    case 1:
+        handle_ingame_ui(game);
+        break;
+    case 2:
+        handle_lose_ui(game);
+        break;
+    case 3:
+        handle_win_ui(game);
+        break;
+    default:
+        break;
     }
 }

@@ -20,21 +20,23 @@ typedef struct {
 int draw_button(const char *label, int x, int y, int width, int height);
 
 typedef struct {
-    Scene      scene;
-    DrawConfig draw_config;
-    UIState    ui_state;
-    AudioStore audio_store;
-    Camera2D   camera;
-    int        castle_health;
-    int        resources;
-    int        current_wave;
-    float      pause_timer;
+    const char *filename;
+    Scene       scene;
+    DrawConfig  draw_config;
+    UIState     ui_state;
+    AudioStore  audio_store;
+    Camera2D    camera;
+    int         castle_health;
+    int         resources;
+    int         current_wave;
+    float       pause_timer;
+    int         scene_idx;
 } Game;
 
 Game load_game(const char *filename, DrawConfig draw_config);
 void unload_game(Game *game);
 
-void update_game(Game *game, float delta_time);
+int  update_game(Game *game, float delta_time);
 void draw_game(const Game *game);
 void handle_ui(Game *game);
 
