@@ -5,7 +5,7 @@
 
 #include <stdio.h>
 
-#define INITIAL_CASTLE_HEALTH       20
+#define INITIAL_CASTLE_HEALTH       1000000
 #define INITIAL_COINS               15
 #define ENEMY_SPEED                 1
 #define PROJECTILE_SPEED            16
@@ -127,6 +127,8 @@ static void update_entity(Entity *entity, Game *game, const float delta_time) {
         if (tile->type == TILE_CASTLE) {
             if (is_friendly(entity->data.m)) {
                 game->coins += 1;
+                play_sfx(&game->audio_store, "FriendlyMonsterEnter");
+                play_sfx(&game->audio_store, "CollectMoney");
             } else {
                 game->castle_health -= 1;
                 play_sfx(&game->audio_store, "CastleDamage");
@@ -412,6 +414,7 @@ static void update_tile(Tile *tile, Game *game, const float delta_time) {
             if (data->timer >= COLLECT_INTERVAL) {
                 data->timer = 0.0f;
                 game->coins += 1;
+                play_sfx(&game->audio_store, "CollectMoney");
             }
 
             break;
@@ -501,24 +504,27 @@ static void handle_ingame_ui(Game *game) {
             next_wave(game);
         }
 
-        for (int i = 0; i < game->scene.grid.width; i++) {
-            for (int j = 0; j < game->scene.grid.height; j++) {
-                const Tile *tile = get_tile(&game->scene.grid, i, j);
-                if (tile->type != TILE_SPAWNER) {
-                    continue;
-                }
-
-                const int x = (int)((i + 0.25) * game->draw_config.tile_size - game->camera.target.x);
-                const int y = (int)((j + 0.25) * game->draw_config.tile_size - game->camera.target.y);
-
-                int count = 0;
-                for (int e = 0; e < tile->data.s.waves[game->current_wave + 1].size; e++) {
-                    if (tile->data.s.waves[game->current_wave + 1].ptr[e] != MONSTER_NONE) {
-                        count++;
+        if (game->current_wave + 1 < WAVE_COUNT) {
+            for (int i = 0; i < game->scene.grid.width; i++) {
+                for (int j = 0; j < game->scene.grid.height; j++) {
+                    const Tile *tile = get_tile(&game->scene.grid, i, j);
+                    if (tile->type != TILE_SPAWNER) {
+                        continue;
                     }
-                }
 
-                DrawText(TextFormat("%i", count), x, y, 32, RED);
+                    const int x = (int)((i + 0.25) * game->draw_config.tile_size - game->camera.target.x);
+                    const int y = (int)((j + 0.25) * game->draw_config.tile_size - game->camera.target.y);
+
+                    int count = 0;
+
+                    for (int e = 0; e < tile->data.s.waves[game->current_wave + 1].size; e++) {
+                        if (tile->data.s.waves[game->current_wave + 1].ptr[e] != MONSTER_NONE) {
+                            count++;
+                        }
+                    }
+
+                    DrawText(TextFormat("%i", count), x, y, 32, RED);
+                }
             }
         }
     }
@@ -670,6 +676,18 @@ Game load_game(const char *filename, const DrawConfig draw_config) {
     game.ui_state.selected_entity        = NULL;
     game.audio_store                     = make_audio_store();
 
+    game.sprite_store.grass      = LoadTexture("res/sprites/grass.png");
+    game.sprite_store.path       = LoadTexture("res/sprites/path.png");
+    game.sprite_store.vampire    = LoadTexture("res/sprites/vampire.png");
+    game.sprite_store.werewolf   = LoadTexture("res/sprites/werewolf.png");
+    game.sprite_store.ghost      = LoadTexture("res/sprites/ghost.png");
+    game.sprite_store.tower      = LoadTexture("res/sprites/tower.png");
+    game.sprite_store.cannon     = LoadTexture("res/sprites/cannon.png");
+    game.sprite_store.collector  = LoadTexture("res/sprites/collector.png");
+    game.sprite_store.castle     = LoadTexture("res/sprites/castle.png");
+    game.sprite_store.projectile = LoadTexture("res/sprites/projectile.png");
+    game.sprite_store.cannonball = LoadTexture("res/sprites/cannonball.png");
+
     audio_store_load(&game.audio_store, "res/sfx/CastleDamaged.wav", "CastleDamage", 1.0f);
     audio_store_load(&game.audio_store, "res/sfx/ClickMenuButton.wav", "ClickMenuButton", 1.0f);
     audio_store_load(&game.audio_store, "res/sfx/CloseInfoPage.wav", "CloseInfoPage", 3.0f);
@@ -682,6 +700,8 @@ Game load_game(const char *filename, const DrawConfig draw_config) {
     audio_store_load(&game.audio_store, "res/sfx/WaveStart.wav", "WaveStart", 1.0f);
     audio_store_load(&game.audio_store, "res/sfx/WerewolfHit.wav", "WerewolfHit", 1.0f);
     audio_store_load(&game.audio_store, "res/sfx/WrongEnemyKilled.wav", "WrongEnemyKilled", 1.0f);
+    audio_store_load(&game.audio_store, "res/sfx/CollectMoney.wav", "CollectMoney", 3.0f);
+    audio_store_load(&game.audio_store, "res/sfx/FriendlyMonsterEnter.wav", "FriendlyMonsterEnter", 3.0f);
 
     game.castle_health = INITIAL_CASTLE_HEALTH;
     game.coins         = INITIAL_COINS;
@@ -712,6 +732,16 @@ Game load_game(const char *filename, const DrawConfig draw_config) {
 void unload_game(Game *game) {
     unload_scene(&game->scene);
     delete_audio_store(&game->audio_store);
+
+    UnloadTexture(game->sprite_store.grass);
+    UnloadTexture(game->sprite_store.path);
+    UnloadTexture(game->sprite_store.vampire);
+    UnloadTexture(game->sprite_store.werewolf);
+    UnloadTexture(game->sprite_store.ghost);
+    UnloadTexture(game->sprite_store.tower);
+    UnloadTexture(game->sprite_store.cannon);
+    UnloadTexture(game->sprite_store.collector);
+    UnloadTexture(game->sprite_store.castle);
 }
 
 int update_game(Game *game, float delta_time) {
@@ -746,13 +776,14 @@ int update_game(Game *game, float delta_time) {
     return game->scene_idx;
 }
 
-void draw_game(const Game *game) {
+void draw_game(Game *game) {
     if (game->scene_idx != 1) {
         return;
     }
 
     BeginMode2D(game->camera);
     draw_scene(
+        &game->sprite_store,
         &game->scene, game->draw_config.tile_size,
         game->draw_config.tile_padding,
         game->draw_config.entity_size

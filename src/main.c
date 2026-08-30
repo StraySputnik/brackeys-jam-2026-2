@@ -17,7 +17,7 @@ int main() {
     InitAudioDevice();
     SetExitKey(KEY_NULL);
 
-    game  = load_game("res/scene.txt", make_draw_config(56, 0, 20.0f));
+    game  = load_game("res/scene.txt", make_draw_config(56, 0, 56.0f));
     music = LoadSound("res/music/LevelMusic.ogg");
     PlaySound(music);
 
@@ -41,7 +41,7 @@ void UpdateDrawFrame() {
         PlaySound(music);
     }
 
-    if (update_game(&game, GetFrameTime()) == -1) {
+    if (update_game(&game, GetFrameTime() * 10) == -1) {
         return;
     }
 

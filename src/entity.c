@@ -1,5 +1,6 @@
 #include "entity.h"
 
+#include <assert.h>
 #include <stdlib.h>
 
 const char *monster_type_to_string(const MonsterType type) {
@@ -165,7 +166,7 @@ void randomize_monster_data(MonsterData *monster, const MonsterType type, const 
         }
     } else {
         do {
-            monster->title    = GetRandomValue(1, TITLE_COUNT - 1);
+            monster->title    = GetRandomValue(1, TITLE_TYPE_COUNT - 1);
             monster->weakness = GetRandomValue(1, WEAKNESS_TYPE_COUNT - 1);
             monster->strength = GetRandomValue(1, STRENGTH_TYPE_COUNT - 1);
 
@@ -198,26 +199,53 @@ void randomize_monster_data(MonsterData *monster, const MonsterType type, const 
     }
 }
 
-void draw_entity(const Entity *entity, float entity_size) {
+void draw_entity(const SpriteStore *sprite_store, const Entity *entity, const float entity_size) {
     if (entity->type == ENTITY_NULL) {
         return;
     }
 
-    Color color = MAGENTA;
+    Vector2 centered_pos = {
+        .x = entity->position.x - 0.5f * entity_size, .y = entity->position.y - 0.5f * entity_size
+    };
+
+    const float scale = entity_size / 16.0f;
+    if (entity->type == ENTITY_PROJECTILE || entity->type == ENTITY_CANNONBALL) {
+        centered_pos.x = centered_pos.x + 0.5f * entity_size - 0.125f * entity_size;
+        centered_pos.y = centered_pos.y + 0.5f * entity_size - 0.125f * entity_size;
+    }
+
+    Texture sprite;
 
     switch (entity->type) {
     case ENTITY_MONSTER:
-        color = RED;
+        switch (entity->data.m.monster_type) {
+        case MONSTER_VAMPIRE:
+            sprite = sprite_store->vampire;
+            break;
+        case MONSTER_WEREWOLF:
+            sprite = sprite_store->werewolf;
+            break;
+        case MONSTER_GHOST:
+            sprite = sprite_store->ghost;
+            break;
+        default:
+            assert(false);
+            break;
+        }
+
         break;
     case ENTITY_PROJECTILE:
-        color = YELLOW;
-        entity_size *= 0.5f;
+        sprite = sprite_store->projectile;
+        break;
+    case ENTITY_CANNONBALL:
+        sprite = sprite_store->cannonball;
         break;
     default:
+        assert(false);
         break;
     }
 
-    DrawCircleV(entity->position, entity_size, color);
+    DrawTextureEx(sprite, (Vector2){.x = centered_pos.x, .y = centered_pos.y}, 0.0f, scale, WHITE);
 }
 
 EntityPool make_entity_pool() {
@@ -270,8 +298,8 @@ Entity *get_entity(const EntityPool *pool, const EntityId id) {
     return &pool->entities[id];
 }
 
-void draw_entities(const EntityPool *pool, const float entity_size) {
+void draw_entities(const SpriteStore *sprite_store, const EntityPool *pool, const float entity_size) {
     for (size_t i = 0; i < pool->count; i++) {
-        draw_entity(&pool->entities[i], entity_size);
+        draw_entity(sprite_store, &pool->entities[i], entity_size);
     }
 }

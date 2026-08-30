@@ -5,6 +5,8 @@
 
 #include <stddef.h>
 
+#include "sprite_store.h"
+
 typedef size_t EntityId;
 
 typedef enum {
@@ -99,7 +101,7 @@ typedef struct {
     } data;
 } Entity;
 
-void draw_entity(const Entity *entity, float entity_size);
+void draw_entity(const SpriteStore *sprite_store, const Entity *entity, float entity_size);
 
 typedef struct {
     Entity *entities;
@@ -113,6 +115,6 @@ EntityId spawn_entity(EntityPool *pool, Vector2 position, EntityType type);
 void     despawn_entity(const EntityPool *pool, EntityId id);
 
 Entity *get_entity(const EntityPool *pool, EntityId id);
-void    draw_entities(const EntityPool *pool, float entity_size);
+void    draw_entities(const SpriteStore *sprite_store, const EntityPool *pool, float entity_size);
 
 #endif //GAME_ENTITY_H

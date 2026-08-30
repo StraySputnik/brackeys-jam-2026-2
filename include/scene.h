@@ -15,6 +15,6 @@ typedef struct {
 Scene load_scene(const char *filename);
 void  unload_scene(Scene *scene);
 
-void draw_scene(const Scene *scene, int tile_size, int tile_padding, float entity_size);
+void draw_scene(const SpriteStore *sprite_store, const Scene *scene, int tile_size, int tile_padding, float entity_size);
 
 #endif //GAME_SCENE_H

@@ -52,50 +52,51 @@ bool spawn_queue_increment(SpawnQueue *queue, MonsterType *out_type) {
     return true;
 }
 
-void draw_tile(const Tile *tile, const int tile_size, const int tile_padding) {
-    Color color;
+void draw_tile(const SpriteStore *sprite_store, const Tile *tile, const int tile_size, const int tile_padding) {
+    Texture2D sprite;
+    const float scale = (float)tile_size / 16.0f;
 
     switch (tile->type) {
     case TILE_GRASS:
-        color = LIGHTGRAY;
+        sprite = sprite_store->grass;
         break;
     case TILE_PATH:
-        color = GOLD;
+        sprite = sprite_store->path;
         break;
     case TILE_UP:
-        color = GOLD;
+        sprite = sprite_store->path;
         break;
     case TILE_DOWN:
-        color = GOLD;
+        sprite = sprite_store->path;
         break;
     case TILE_LEFT:
-        color = GOLD;
+        sprite = sprite_store->path;
         break;
     case TILE_RIGHT:
-        color = GOLD;
+        sprite = sprite_store->path;
         break;
     case TILE_CASTLE:
-        color = PURPLE;
+        sprite = sprite_store->castle;
         break;
     case TILE_TOWER:
-        color = RED;
+        sprite = sprite_store->tower;
         break;
     case TILE_SALT_CANNON:
-        color = PINK;
+        sprite = sprite_store->cannon;
         break;
     case TILE_COLLECTOR:
-        color = BLUE;
+        sprite = sprite_store->collector;
         break;
     case TILE_SPAWNER:
-        color = GREEN;
+        sprite = sprite_store->path;
         break;
     default:
-        color = MAGENTA;
+        sprite = sprite_store->grass;
         break;
     }
 
-    DrawRectangle(tile->x * tile_size + tile_padding, tile->y * tile_size + tile_padding,
-                  tile_size - tile_padding * 2, tile_size - tile_padding * 2, color);
+    DrawTextureEx(sprite_store->grass, (Vector2){.x = tile->x * tile_size, .y = tile->y * tile_size}, 0.0f, scale, WHITE);
+    DrawTextureEx(sprite, (Vector2){.x = tile->x * tile_size, .y = tile->y * tile_size}, 0.0f, scale, WHITE);
 }
 
 Grid make_grid(const int width, const int height) {
@@ -146,9 +147,9 @@ Tile *get_tile(Grid *grid, const int x, const int y) {
     return NULL;
 }
 
-void draw_grid(const Grid *grid, const int tile_size, const int tile_padding) {
+void draw_grid(const SpriteStore *sprite_store, const Grid *grid, const int tile_size, const int tile_padding) {
     for (int i = 0; i < grid->width * grid->height; i++) {
         const Tile tile = grid->tiles[i];
-        draw_tile(&tile, tile_size, tile_padding);
+        draw_tile(sprite_store, &tile, tile_size, tile_padding);
     }
 }

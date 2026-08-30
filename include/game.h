@@ -3,6 +3,7 @@
 
 #include "audio.h"
 #include "scene.h"
+#include "sprite_store.h"
 
 typedef struct {
     int   tile_size;
@@ -25,6 +26,7 @@ typedef struct {
     DrawConfig  draw_config;
     UIState     ui_state;
     AudioStore  audio_store;
+    SpriteStore sprite_store;
     Camera2D    camera;
     int         castle_health;
     int         coins;
@@ -37,7 +39,7 @@ Game load_game(const char *filename, DrawConfig draw_config);
 void unload_game(Game *game);
 
 int  update_game(Game *game, float delta_time);
-void draw_game(const Game *game);
+void draw_game(Game *game);
 void handle_ui(Game *game);
 
 #endif //GAME_GAME_H

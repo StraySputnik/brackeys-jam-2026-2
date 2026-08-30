@@ -86,7 +86,7 @@ static void load_wave(FILE *file, Scene *scene, const int wave_idx) {
             }
 
             tile->data.s.waves[wave_idx - 1] = queues[spawner_idx];
-            tile->data.s.friendly_count = (int)queues[spawner_idx].size / 2;
+            tile->data.s.friendly_count      = (int)queues[spawner_idx].size / 2;
             spawner_idx++;
         }
     }
@@ -214,7 +214,8 @@ void unload_scene(Scene *scene) {
     delete_grid(&scene->grid);
 }
 
-void draw_scene(const Scene *scene, const int tile_size, const int tile_padding, const float entity_size) {
-    draw_grid(&scene->grid, tile_size, tile_padding);
-    draw_entities(&scene->entity_pool, entity_size);
+void draw_scene(const SpriteStore *sprite_store, const Scene *scene, const int tile_size, const int tile_padding,
+                const float        entity_size) {
+    draw_grid(sprite_store, &scene->grid, tile_size, tile_padding);
+    draw_entities(sprite_store, &scene->entity_pool, entity_size);
 }

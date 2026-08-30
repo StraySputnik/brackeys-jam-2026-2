@@ -66,7 +66,7 @@ typedef struct {
     } data;
 } Tile;
 
-void draw_tile(const Tile *tile, int tile_size, int tile_padding);
+void draw_tile(const SpriteStore *sprite_store, const Tile *tile, int tile_size, int tile_padding);
 
 typedef struct {
     int   width;
@@ -78,6 +78,6 @@ Grid make_grid(int width, int height);
 void delete_grid(Grid *grid);
 
 Tile *get_tile(Grid *grid, int x, int y);
-void  draw_grid(const Grid *grid, int tile_size, int tile_padding);
+void  draw_grid(const SpriteStore *sprite_store, const Grid *grid, int tile_size, int tile_padding);
 
 #endif //GAME_GRID_H
