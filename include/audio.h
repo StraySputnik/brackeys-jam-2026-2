@@ -1,7 +1,7 @@
 #ifndef GAME_AUDIO_H
 #define GAME_AUDIO_H
 
-#include <raylib.h>
+#include "rl.h"
 
 #include <stdlib.h>
 

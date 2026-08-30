@@ -1,6 +1,6 @@
 #include "ui.h"
 
-#include <raylib.h>
+#include "rl.h"
 
 void draw_box(const int x, const int y, const int width, const int height) {
     const Rectangle button_rect = {.x = x, .y = y, .width = width, .height = height};

@@ -1,7 +1,7 @@
 #ifndef GAME_SPRITE_STORE_H
 #define GAME_SPRITE_STORE_H
 
-#include <raylib.h>
+#include "rl.h"
 
 typedef struct {
     Texture grass;

@@ -39,7 +39,7 @@ Game load_game(const char *filename, DrawConfig draw_config);
 void unload_game(Game *game);
 
 int  update_game(Game *game, float delta_time);
-void draw_game(Game *game);
+void draw_game(const Game *game);
 void handle_ui(Game *game);
 
 #endif //GAME_GAME_H

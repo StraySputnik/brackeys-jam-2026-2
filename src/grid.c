@@ -1,6 +1,6 @@
 #include "grid.h"
 
-#include <raylib.h>
+#include "rl.h"
 
 #include <stdlib.h>
 
@@ -53,7 +53,7 @@ bool spawn_queue_increment(SpawnQueue *queue, MonsterType *out_type) {
 }
 
 void draw_tile(const SpriteStore *sprite_store, const Tile *tile, const int tile_size, const int tile_padding) {
-    Texture2D sprite;
+    Texture2D   sprite;
     const float scale = (float)tile_size / 16.0f;
 
     switch (tile->type) {
@@ -95,7 +95,8 @@ void draw_tile(const SpriteStore *sprite_store, const Tile *tile, const int tile
         break;
     }
 
-    DrawTextureEx(sprite_store->grass, (Vector2){.x = tile->x * tile_size, .y = tile->y * tile_size}, 0.0f, scale, WHITE);
+    DrawTextureEx(sprite_store->grass, (Vector2){.x = tile->x * tile_size, .y = tile->y * tile_size}, 0.0f, scale,
+                  WHITE);
     DrawTextureEx(sprite, (Vector2){.x = tile->x * tile_size, .y = tile->y * tile_size}, 0.0f, scale, WHITE);
 }
 

@@ -1,7 +1,7 @@
 #ifndef GAME_ENTITY_H
 #define GAME_ENTITY_H
 
-#include <raylib.h>
+#include "rl.h"
 
 #include <stddef.h>
 

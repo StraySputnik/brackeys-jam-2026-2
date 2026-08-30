@@ -5,7 +5,7 @@
 
 #include <stdio.h>
 
-#define INITIAL_CASTLE_HEALTH       1000000
+#define INITIAL_CASTLE_HEALTH       20
 #define INITIAL_COINS               15
 #define ENEMY_SPEED                 1
 #define PROJECTILE_SPEED            16
@@ -487,8 +487,8 @@ static void handle_win_ui(Game *game) {
 
 static void handle_ingame_ui(Game *game) {
     DrawText(TextFormat("HP: %d", game->castle_health), 10, 10, 20, RED);
-    DrawText(TextFormat("Coins: %d", game->coins), 80, 10, 20, YELLOW);
-    DrawText(TextFormat("Wave %d/%d", game->current_wave + 1, WAVE_COUNT), 590, 10, 20, RAYWHITE);
+    DrawText(TextFormat("Gold: %d", game->coins), 80, 10, 20, YELLOW);
+    DrawText(TextFormat("Wave %d/%d", game->current_wave + 1, WAVE_COUNT), 1170, 10, 20, RAYWHITE);
 
     if (game->pause_timer > 0.0f) {
         DrawRectangle(0, 710, (int)(1280 * game->pause_timer / pause_times[game->current_wave]), 10, WHITE);
@@ -745,7 +745,7 @@ void unload_game(Game *game) {
 }
 
 int update_game(Game *game, float delta_time) {
-    if (game->current_wave == WAVE_COUNT) {
+    if (game->current_wave == WAVE_COUNT - 1 && all_entities_dead(game) && all_spawners_finished(game)) {
         game->scene_idx = 3;
     }
 
@@ -776,7 +776,7 @@ int update_game(Game *game, float delta_time) {
     return game->scene_idx;
 }
 
-void draw_game(Game *game) {
+void draw_game(const Game *game) {
     if (game->scene_idx != 1) {
         return;
     }

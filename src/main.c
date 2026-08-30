@@ -1,6 +1,6 @@
-#include "game.h"
+#include "rl.h"
 
-#include <raylib.h>
+#include "game.h"
 
 #if defined(PLATFORM_WEB)
 #include <emscripten/emscripten.h>
@@ -41,7 +41,7 @@ void UpdateDrawFrame() {
         PlaySound(music);
     }
 
-    if (update_game(&game, GetFrameTime() * 10) == -1) {
+    if (update_game(&game, GetFrameTime()) == -1) {
         return;
     }
 

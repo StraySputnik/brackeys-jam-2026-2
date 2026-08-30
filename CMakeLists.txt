@@ -26,6 +26,7 @@ add_executable(game
         include/audio.h
         src/audio.c
         include/sprite_store.h
+        include/rl.h
 )
 
 target_include_directories(game PUBLIC include PRIVATE src)

@@ -1,6 +1,6 @@
 #include "audio.h"
 
-#include <raylib.h>
+#include "rl.h"
 #include <stdio.h>
 
 #include <stdlib.h>
