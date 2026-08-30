@@ -27,7 +27,7 @@ typedef struct {
     AudioStore  audio_store;
     Camera2D    camera;
     int         castle_health;
-    int         resources;
+    int         coins;
     int         current_wave;
     float       pause_timer;
     int         scene_idx;

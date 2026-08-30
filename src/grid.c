@@ -10,6 +10,8 @@ int build_price(const TileType tile) {
         return 5;
     case TILE_COLLECTOR:
         return 10;
+    case TILE_SALT_CANNON:
+        return 10;
     default:
         return 1023;
     }
@@ -77,6 +79,9 @@ void draw_tile(const Tile *tile, const int tile_size, const int tile_padding) {
         break;
     case TILE_TOWER:
         color = RED;
+        break;
+    case TILE_SALT_CANNON:
+        color = PINK;
         break;
     case TILE_COLLECTOR:
         color = BLUE;

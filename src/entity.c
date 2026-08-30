@@ -128,7 +128,7 @@ int get_health_for_monster(const MonsterType type) {
     case MONSTER_WEREWOLF:
         return 4;
     case MONSTER_GHOST:
-        return 1;
+        return 6;
     default:
         return 0;
     }

@@ -11,6 +11,7 @@ typedef enum {
     ENTITY_NULL,
     ENTITY_MONSTER,
     ENTITY_PROJECTILE,
+    ENTITY_CANNONBALL,
     ENTITY_TYPE_COUNT,
 } EntityType;
 
@@ -66,6 +67,7 @@ typedef struct {
     int         age;
     int         health;
     bool        marked;
+    int         target_count;
 } MonsterData;
 
 const char *random_vampire_name();
@@ -73,13 +75,17 @@ const char *random_werewolf_name();
 const char *random_ghost_name();
 
 bool is_friendly(MonsterData monster);
-int get_health_for_monster(MonsterType type);
+int  get_health_for_monster(MonsterType type);
 
 void randomize_monster_data(MonsterData *monster, MonsterType type, bool friendly);
 
 typedef struct {
     Vector2 direction;
 } ProjectileData;
+
+typedef struct {
+    Vector2 direction;
+} CannonballData;
 
 typedef struct {
     EntityId   id;
@@ -89,6 +95,7 @@ typedef struct {
     union {
         MonsterData    m;
         ProjectileData p;
+        CannonballData c;
     } data;
 } Entity;
 

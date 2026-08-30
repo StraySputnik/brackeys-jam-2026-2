@@ -5,14 +5,17 @@
 
 #include <stdio.h>
 
-#define INITIAL_CASTLE_HEALTH 10
-#define ENEMY_SPEED           1
-#define PROJECTILE_SPEED      16
-#define TOWER_ATTACK_INTERVAL 4
-#define TOWER_RANGE           3
-#define SPAWN_INTERVAL        2
-#define COLLECT_INTERVAL      5
-#define PAUSE_COOLDOWN        1.5
+#define INITIAL_CASTLE_HEALTH       20
+#define INITIAL_COINS               15
+#define ENEMY_SPEED                 1
+#define PROJECTILE_SPEED            16
+#define TOWER_ATTACK_INTERVAL       3
+#define TOWER_RANGE                 3
+#define SALT_CANNON_ATTACK_INTERVAL 4
+#define SALT_CANNON_RANGE           4
+#define SPAWN_INTERVAL              2
+#define COLLECT_INTERVAL            5
+#define PAUSE_COOLDOWN              1.5
 
 static float pause_times[] = {
     5.0f,
@@ -20,7 +23,7 @@ static float pause_times[] = {
     3.0f,
     2.5f,
     2.0f,
-    1.0f,
+    1.5f,
 };
 
 static Entity *get_closest_target(const Game *game, const Vector2 position) {
@@ -123,7 +126,7 @@ static void update_entity(Entity *entity, Game *game, const float delta_time) {
 
         if (tile->type == TILE_CASTLE) {
             if (is_friendly(entity->data.m)) {
-                game->resources += 1;
+                game->coins += 1;
             } else {
                 game->castle_health -= 1;
                 play_sfx(&game->audio_store, "CastleDamage");
@@ -167,54 +170,110 @@ static void update_entity(Entity *entity, Game *game, const float delta_time) {
         }
         break;
     case ENTITY_PROJECTILE:
-        entity->position.x +=
-            entity->data.p.direction.x * PROJECTILE_SPEED * (float)game->draw_config.tile_size * delta_time;
-        entity->position.y +=
-            entity->data.p.direction.y * PROJECTILE_SPEED * (float)game->draw_config.tile_size * delta_time;
+        {
+            entity->position.x +=
+                entity->data.p.direction.x * PROJECTILE_SPEED * (float)game->draw_config.tile_size * delta_time;
+            entity->position.y +=
+                entity->data.p.direction.y * PROJECTILE_SPEED * (float)game->draw_config.tile_size * delta_time;
 
-        if (entity->position.x < -1000 || entity->position.x > 5000 || entity->position.y < -1000 || entity->position.y
-            > 5000) {
-            despawn_entity(&game->scene.entity_pool, entity->id);
-            break;
-        }
-
-        Entity *target = get_closest_target(game, entity->position);
-        if (!target) {
-            break;
-        }
-
-        MonsterType target_type = target->data.m.monster_type;
-        if (Vector2Distance(entity->position, target->position) < game->draw_config.entity_size) {
-            switch (target_type) {
-            case MONSTER_VAMPIRE:
-                play_sfx(&game->audio_store, "VampireHit");
-                break;
-            case MONSTER_WEREWOLF:
-                play_sfx(&game->audio_store, "WerewolfHit");
-                break;
-            case MONSTER_GHOST:
-                play_sfx(&game->audio_store, "GhostHit");
-                break;
-            default:
+            if (entity->position.x < -1000 || entity->position.x > 5000 || entity->position.y < -1000 || entity->
+                position.y
+                > 5000) {
+                despawn_entity(&game->scene.entity_pool, entity->id);
                 break;
             }
 
-            target->data.m.health--;
-            if (target->data.m.health == 0) {
-                if (is_friendly(target->data.m)) {
-                    play_sfx(&game->audio_store, "WrongEnemyKilled");
-                } else {
-                    play_sfx(&game->audio_store, "EnemyDeath");
+            Entity *target = get_closest_target(game, entity->position);
+            if (!target) {
+                break;
+            }
+
+            const MonsterType target_type = target->data.m.monster_type;
+            if (Vector2Distance(entity->position, target->position) < game->draw_config.entity_size) {
+                switch (target_type) {
+                case MONSTER_VAMPIRE:
+                    play_sfx(&game->audio_store, "VampireHit");
+                    break;
+                case MONSTER_WEREWOLF:
+                    play_sfx(&game->audio_store, "WerewolfHit");
+                    break;
+                case MONSTER_GHOST:
+                    play_sfx(&game->audio_store, "GhostHit");
+                    break;
+                default:
+                    break;
                 }
 
-                despawn_entity(&game->scene.entity_pool, target->id);
+                target->data.m.health--;
+                if (target->data.m.health <= 0) {
+                    if (is_friendly(target->data.m)) {
+                        play_sfx(&game->audio_store, "WrongEnemyKilled");
+                    } else {
+                        play_sfx(&game->audio_store, "EnemyDeath");
+                    }
+
+                    despawn_entity(&game->scene.entity_pool, target->id);
+                }
+
+                despawn_entity(&game->scene.entity_pool, entity->id);
+                break;
             }
 
-            despawn_entity(&game->scene.entity_pool, entity->id);
             break;
         }
+    case ENTITY_CANNONBALL:
+        {
+            entity->position.x +=
+                entity->data.p.direction.x * PROJECTILE_SPEED * (float)game->draw_config.tile_size * delta_time;
+            entity->position.y +=
+                entity->data.p.direction.y * PROJECTILE_SPEED * (float)game->draw_config.tile_size * delta_time;
 
-        break;
+            if (entity->position.x < -1000 || entity->position.x > 5000 || entity->position.y < -1000 || entity->
+                position.y
+                > 5000) {
+                despawn_entity(&game->scene.entity_pool, entity->id);
+                break;
+            }
+
+            Entity *target = get_closest_target(game, entity->position);
+            if (!target) {
+                break;
+            }
+
+            const MonsterType target_type = target->data.m.monster_type;
+            if (Vector2Distance(entity->position, target->position) < game->draw_config.entity_size) {
+                switch (target_type) {
+                case MONSTER_VAMPIRE:
+                    play_sfx(&game->audio_store, "VampireHit");
+                    break;
+                case MONSTER_WEREWOLF:
+                    play_sfx(&game->audio_store, "WerewolfHit");
+                    break;
+                case MONSTER_GHOST:
+                    play_sfx(&game->audio_store, "GhostHit");
+                    target->data.m.health -= 2;
+                    break;
+                default:
+                    break;
+                }
+
+                target->data.m.health--;
+                if (target->data.m.health <= 0) {
+                    if (is_friendly(target->data.m)) {
+                        play_sfx(&game->audio_store, "WrongEnemyKilled");
+                    } else {
+                        play_sfx(&game->audio_store, "EnemyDeath");
+                    }
+
+                    despawn_entity(&game->scene.entity_pool, target->id);
+                }
+
+                despawn_entity(&game->scene.entity_pool, entity->id);
+                break;
+            }
+
+            break;
+        }
     default:
         break;
     }
@@ -233,8 +292,12 @@ static void update_tile(Tile *tile, Game *game, const float delta_time) {
                     .y = ((float)tile->y + 0.5f) * (float)game->draw_config.tile_size,
                 };
 
-                const Entity *target = get_closest_target(game, position);
+                Entity *target = get_closest_target(game, position);
                 if (!target) {
+                    break;
+                }
+
+                if (target->data.m.target_count >= target->data.m.health) {
                     break;
                 }
 
@@ -242,6 +305,45 @@ static void update_tile(Tile *tile, Game *game, const float delta_time) {
                     break;
                 }
 
+                target->data.m.target_count++;
+                data->timer = 0.0f;
+                play_sfx(&game->audio_store, "TowerShoot");
+
+                Vector2 direction = Vector2Subtract(target->position, position);
+                direction         = Vector2Normalize(direction);
+
+                const EntityId id = spawn_entity(&game->scene.entity_pool, position, ENTITY_PROJECTILE);
+                get_entity(&game->scene.entity_pool, id)->data.p.direction = direction;
+            }
+
+            break;
+        }
+    case TILE_SALT_CANNON:
+        {
+            SaltCannonData *data = &tile->data.sc;
+            data->timer          += delta_time;
+
+            if (data->timer >= SALT_CANNON_ATTACK_INTERVAL) {
+                const Vector2 position = {
+                    .x = ((float)tile->x + 0.5f) * (float)game->draw_config.tile_size,
+                    .y = ((float)tile->y + 0.5f) * (float)game->draw_config.tile_size,
+                };
+
+                Entity *target = get_closest_target(game, position);
+                if (!target) {
+                    break;
+                }
+
+                if (target->data.m.target_count >= target->data.m.health) {
+                    break;
+                }
+
+                if (Vector2Distance(position, target->position) >
+                    SALT_CANNON_RANGE * (float)game->draw_config.tile_size) {
+                    break;
+                }
+
+                target->data.m.target_count++;
                 data->timer = 0.0f;
                 play_sfx(&game->audio_store, "TowerShoot");
 
@@ -283,6 +385,7 @@ static void update_tile(Tile *tile, Game *game, const float delta_time) {
                 m->monster_type = type;
                 m->marked       = false;
                 m->health       = get_health_for_monster(type);
+                m->target_count = 0;
 
                 bool friendly = false;
                 if (data->friendly_count > 0) {
@@ -307,8 +410,8 @@ static void update_tile(Tile *tile, Game *game, const float delta_time) {
             }
 
             if (data->timer >= COLLECT_INTERVAL) {
-                data->timer     = 0.0f;
-                game->resources += 1;
+                data->timer = 0.0f;
+                game->coins += 1;
             }
 
             break;
@@ -333,7 +436,7 @@ static void update_tiles(Game *game, const float delta_time) {
 }
 
 static void handle_title_ui(Game *game) {
-    DrawText("TITLE", 515, 120, 72, WHITE);
+    DrawText("KNIGHT GUARD", 370, 120, 72, WHITE);
     if (draw_button("Start", 500, 240, 280, 40)) {
         play_sfx(&game->audio_store, "ClickMenuButton");
         game->scene_idx = 1;
@@ -351,10 +454,10 @@ static void handle_lose_ui(Game *game) {
         game->ui_state.selected_building_type = TILE_GRASS;
         game->ui_state.selected_entity        = NULL;
         game->castle_health                   = INITIAL_CASTLE_HEALTH;
-        game->resources                       = 10;
+        game->coins                           = INITIAL_COINS;
         game->current_wave                    = 0;
         game->pause_timer                     = 0.0f;
-        game->scene = load_scene(game->filename);
+        game->scene                           = load_scene(game->filename);
 
         play_sfx(&game->audio_store, "ClickMenuButton");
         game->scene_idx = 1;
@@ -381,7 +484,7 @@ static void handle_win_ui(Game *game) {
 
 static void handle_ingame_ui(Game *game) {
     DrawText(TextFormat("HP: %d", game->castle_health), 10, 10, 20, RED);
-    DrawText(TextFormat("Resources: %d", game->resources), 80, 10, 20, YELLOW);
+    DrawText(TextFormat("Coins: %d", game->coins), 80, 10, 20, YELLOW);
     DrawText(TextFormat("Wave %d/%d", game->current_wave + 1, WAVE_COUNT), 590, 10, 20, RAYWHITE);
 
     if (game->pause_timer > 0.0f) {
@@ -394,16 +497,43 @@ static void handle_ingame_ui(Game *game) {
         if (draw_button("Next Wave", 1120, 40, 150, 40)) {
             play_sfx(&game->audio_store, "ClickMenuButton");
             play_sfx(&game->audio_store, "WaveStart");
+            game->castle_health = INITIAL_CASTLE_HEALTH;
             next_wave(game);
+        }
+
+        for (int i = 0; i < game->scene.grid.width; i++) {
+            for (int j = 0; j < game->scene.grid.height; j++) {
+                const Tile *tile = get_tile(&game->scene.grid, i, j);
+                if (tile->type != TILE_SPAWNER) {
+                    continue;
+                }
+
+                const int x = (int)((i + 0.25) * game->draw_config.tile_size - game->camera.target.x);
+                const int y = (int)((j + 0.25) * game->draw_config.tile_size - game->camera.target.y);
+
+                int count = 0;
+                for (int e = 0; e < tile->data.s.waves[game->current_wave + 1].size; e++) {
+                    if (tile->data.s.waves[game->current_wave + 1].ptr[e] != MONSTER_NONE) {
+                        count++;
+                    }
+                }
+
+                DrawText(TextFormat("%i", count), x, y, 32, RED);
+            }
         }
     }
 
-    if (draw_button("Tower", 10, 40, 150, 40)) {
+    if (draw_button("Tower (5)", 10, 40, 200, 40)) {
         play_sfx(&game->audio_store, "ClickMenuButton");
         game->ui_state.selected_building_type = TILE_TOWER;
     }
 
-    if (draw_button("Collector", 10, 90, 150, 40)) {
+    if (draw_button("Salt Cannon (10)", 10, 90, 200, 40)) {
+        play_sfx(&game->audio_store, "ClickMenuButton");
+        game->ui_state.selected_building_type = TILE_SALT_CANNON;
+    }
+
+    if (draw_button("Collector (10)", 10, 140, 200, 40)) {
         play_sfx(&game->audio_store, "ClickMenuButton");
         game->ui_state.selected_building_type = TILE_COLLECTOR;
     }
@@ -446,7 +576,7 @@ static void handle_ingame_ui(Game *game) {
     }
 
     const TileType building = game->ui_state.selected_building_type;
-    if (building != TILE_GRASS && game->resources >= build_price(building)) {
+    if (building != TILE_GRASS && game->coins >= build_price(building)) {
         BeginMode2D(game->camera);
 
         const Vector2 mouse_pos = GetMousePosition();
@@ -474,6 +604,17 @@ static void handle_ingame_ui(Game *game) {
             );
         }
 
+        if (building == TILE_SALT_CANNON) {
+            DrawCircle(
+                x * tile_size + tile_size / 2,
+                y * tile_size + tile_size / 2,
+                SALT_CANNON_RANGE * (float)tile_size,
+                (Color){
+                    .r = placeholder_color.r, .g = placeholder_color.g, .b = placeholder_color.b, .a = 100
+                }
+            );
+        }
+
         DrawRectangle(
             x * tile_size + tile_padding,
             y * tile_size + tile_padding,
@@ -484,12 +625,16 @@ static void handle_ingame_ui(Game *game) {
 
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
             if (tile && tile->type == TILE_GRASS) {
-                game->resources -= build_price(building);
-                tile->type      = building;
+                game->coins -= build_price(building);
+                tile->type  = building;
                 play_sfx(&game->audio_store, "TowerBuild");
 
                 if (building == TILE_TOWER) {
                     tile->data.t.timer = 0.0f;
+                }
+
+                if (building == TILE_SALT_CANNON) {
+                    tile->data.sc.timer = 0.0f;
                 }
 
                 if (building == TILE_COLLECTOR) {
@@ -525,21 +670,21 @@ Game load_game(const char *filename, const DrawConfig draw_config) {
     game.ui_state.selected_entity        = NULL;
     game.audio_store                     = make_audio_store();
 
-    audio_store_load(&game.audio_store, "sfx/CastleDamaged.wav", "CastleDamage", 1.0f);
-    audio_store_load(&game.audio_store, "sfx/ClickMenuButton.wav", "ClickMenuButton", 1.0f);
-    audio_store_load(&game.audio_store, "sfx/CloseInfoPage.wav", "CloseInfoPage", 3.0f);
-    audio_store_load(&game.audio_store, "sfx/EnemyDies.wav", "EnemyDeath", 3.0f);
-    audio_store_load(&game.audio_store, "sfx/GenericTowerBuild.wav", "TowerBuild", 1.0f);
-    audio_store_load(&game.audio_store, "sfx/GenericTowerShoot.wav", "TowerShoot", 1.0f);
-    audio_store_load(&game.audio_store, "sfx/GhostHit.wav", "GhostHit", 1.0f);
-    audio_store_load(&game.audio_store, "sfx/OpenInfoPage.wav", "OpenInfoPage", 3.0f);
-    audio_store_load(&game.audio_store, "sfx/VampireHit.wav", "VampireHit", 1.0f);
-    audio_store_load(&game.audio_store, "sfx/WaveStart.wav", "WaveStart", 1.0f);
-    audio_store_load(&game.audio_store, "sfx/WerewolfHit.wav", "WerewolfHit", 1.0f);
-    audio_store_load(&game.audio_store, "sfx/WrongEnemyKilled.wav", "WrongEnemyKilled", 1.0f);
+    audio_store_load(&game.audio_store, "res/sfx/CastleDamaged.wav", "CastleDamage", 1.0f);
+    audio_store_load(&game.audio_store, "res/sfx/ClickMenuButton.wav", "ClickMenuButton", 1.0f);
+    audio_store_load(&game.audio_store, "res/sfx/CloseInfoPage.wav", "CloseInfoPage", 3.0f);
+    audio_store_load(&game.audio_store, "res/sfx/EnemyDies.wav", "EnemyDeath", 3.0f);
+    audio_store_load(&game.audio_store, "res/sfx/GenericTowerBuild.wav", "TowerBuild", 1.0f);
+    audio_store_load(&game.audio_store, "res/sfx/GenericTowerShoot.wav", "TowerShoot", 1.0f);
+    audio_store_load(&game.audio_store, "res/sfx/GhostHit.wav", "GhostHit", 1.0f);
+    audio_store_load(&game.audio_store, "res/sfx/OpenInfoPage.wav", "OpenInfoPage", 3.0f);
+    audio_store_load(&game.audio_store, "res/sfx/VampireHit.wav", "VampireHit", 1.0f);
+    audio_store_load(&game.audio_store, "res/sfx/WaveStart.wav", "WaveStart", 1.0f);
+    audio_store_load(&game.audio_store, "res/sfx/WerewolfHit.wav", "WerewolfHit", 1.0f);
+    audio_store_load(&game.audio_store, "res/sfx/WrongEnemyKilled.wav", "WrongEnemyKilled", 1.0f);
 
     game.castle_health = INITIAL_CASTLE_HEALTH;
-    game.resources     = 10;
+    game.coins         = INITIAL_COINS;
     game.current_wave  = 0;
     game.pause_timer   = 0.0f;
     game.scene_idx     = 0;
@@ -570,7 +715,7 @@ void unload_game(Game *game) {
 }
 
 int update_game(Game *game, float delta_time) {
-    if (game->current_wave == WAVE_COUNT - 1) {
+    if (game->current_wave == WAVE_COUNT) {
         game->scene_idx = 3;
     }
 

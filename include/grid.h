@@ -12,6 +12,7 @@ typedef enum {
     TILE_RIGHT,
     TILE_CASTLE,
     TILE_TOWER,
+    TILE_SALT_CANNON,
     TILE_COLLECTOR,
     TILE_SPAWNER,
     TILE_TYPE_COUNT,
@@ -36,6 +37,10 @@ typedef struct {
 } TowerData;
 
 typedef struct {
+    float timer;
+} SaltCannonData;
+
+typedef struct {
     Vector2     direction;
     float       timer;
     SpawnQueue *waves;
@@ -54,9 +59,10 @@ typedef struct {
     int      y;
 
     union {
-        TowerData     t;
-        SpawnerData   s;
-        CollectorData c;
+        TowerData      t;
+        SaltCannonData sc;
+        SpawnerData    s;
+        CollectorData  c;
     } data;
 } Tile;
 

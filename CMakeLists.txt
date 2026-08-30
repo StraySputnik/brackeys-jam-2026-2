@@ -25,6 +25,7 @@ add_executable(game
         src/ui.c
         include/audio.h
         src/audio.c
+        include/sprite_store.h
 )
 
 target_include_directories(game PUBLIC include PRIVATE src)
@@ -37,3 +38,15 @@ target_compile_options(game PUBLIC
 target_link_options(game PUBLIC
         -fsanitize=address
 )
+
+if (${PLATFORM} STREQUAL "Web")
+    set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".html")
+    target_link_options(${PROJECT_NAME} PUBLIC
+            -sUSE_GLFW=3
+            -sASYNCIFY
+            -sASSERTIONS
+            -sALLOW_MEMORY_GROWTH
+            --shell-file "${raylib_SOURCE_DIR}/src/minshell.html"
+            --preload-file "${CMAKE_SOURCE_DIR}/res@res"
+    )
+endif()
