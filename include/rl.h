@@ -12,6 +12,9 @@
 #undef RAYWHITE
 #define RAYWHITE (Color){163, 162, 154, 255}
 
+#undef BLACK
+#define BLACK (Color) {40, 35, 40, 255}
+
 #undef YELLOW
 #define YELLOW BLUE
 

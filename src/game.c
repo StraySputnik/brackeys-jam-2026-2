@@ -439,13 +439,13 @@ static void update_tiles(Game *game, const float delta_time) {
 }
 
 static void handle_title_ui(Game *game) {
-    DrawText("KNIGHT GUARD", 370, 120, 72, WHITE);
-    if (draw_button("Start", 500, 240, 280, 40)) {
+    DrawTextureEx(game->sprite_store.title, (Vector2){483, 20}, 0.0f, 2.0f, WHITE);
+    if (draw_button("Start", 500, 340, 280, 40)) {
         play_sfx(&game->audio_store, "ClickMenuButton");
         game->scene_idx = 1;
     }
 
-    if (draw_button("Quit", 500, 300, 280, 40)) {
+    if (draw_button("Quit", 500, 400, 280, 40)) {
         play_sfx(&game->audio_store, "ClickMenuButton");
         game->scene_idx = -1;
     }
@@ -688,6 +688,7 @@ Game load_game(const char *filename, const DrawConfig draw_config) {
     game.sprite_store.castle     = LoadTexture("res/sprites/castle.png");
     game.sprite_store.projectile = LoadTexture("res/sprites/projectile.png");
     game.sprite_store.cannonball = LoadTexture("res/sprites/cannonball.png");
+    game.sprite_store.title      = LoadTexture("res/title.png");
 
     audio_store_load(&game.audio_store, "res/sfx/CastleDamaged.wav", "CastleDamage", 1.0f);
     audio_store_load(&game.audio_store, "res/sfx/ClickMenuButton.wav", "ClickMenuButton", 1.0f);
@@ -702,7 +703,7 @@ Game load_game(const char *filename, const DrawConfig draw_config) {
     audio_store_load(&game.audio_store, "res/sfx/WerewolfHit.wav", "WerewolfHit", 1.0f);
     audio_store_load(&game.audio_store, "res/sfx/WrongEnemyKilled.wav", "WrongEnemyKilled", 1.0f);
     audio_store_load(&game.audio_store, "res/sfx/CollectMoney.wav", "CollectMoney", 3.0f);
-    audio_store_load(&game.audio_store, "res/sfx/FriendlyMonsterEnter.wav", "FriendlyMonsterEnter", 3.0f);
+    audio_store_load(&game.audio_store, "res/sfx/FriendlyMonsterEnter.wav", "FriendlyMonsterEnter", 2.0f);
 
     game.castle_health = INITIAL_CASTLE_HEALTH;
     game.coins         = INITIAL_COINS;
@@ -743,6 +744,9 @@ void unload_game(Game *game) {
     UnloadTexture(game->sprite_store.cannon);
     UnloadTexture(game->sprite_store.collector);
     UnloadTexture(game->sprite_store.castle);
+    UnloadTexture(game->sprite_store.cannonball);
+    UnloadTexture(game->sprite_store.projectile);
+    UnloadTexture(game->sprite_store.title);
 }
 
 int update_game(Game *game, float delta_time) {
@@ -752,10 +756,6 @@ int update_game(Game *game, float delta_time) {
 
     if (game->castle_health <= 0) {
         game->scene_idx = 2;
-    }
-
-    if (IsKeyPressed(KEY_E)) {
-        game->scene_idx++;
     }
 
     if (game->scene_idx != 1) {

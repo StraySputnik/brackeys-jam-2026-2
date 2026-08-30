@@ -15,6 +15,7 @@ typedef struct {
     Texture castle;
     Texture projectile;
     Texture cannonball;
+    Texture title;
 } SpriteStore;
 
 #endif //GAME_SPRITE_STORE_H
