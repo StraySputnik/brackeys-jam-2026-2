@@ -19,11 +19,11 @@
 
 static float pause_times[] = {
     5.0f,
-    4.0f,
+    4.5f,
+    3.5f,
     3.0f,
+    2.75f,
     2.5f,
-    2.0f,
-    1.5f,
 };
 
 static Entity *get_closest_target(const Game *game, const Vector2 position) {
@@ -476,7 +476,8 @@ static void handle_win_ui(Game *game) {
     DrawText("YOU WON!", 470, 120, 72, GOLD);
 
     DrawText("-- Credits --", 535, 220, 32, WHITE);
-    DrawText("Code - StraySputnik", 480, 320, 32, WHITE);
+    DrawText("Code - StraySputnik", 480, 280, 32, WHITE);
+    DrawText("Art - StraySputnik", 490, 320, 32, WHITE);
     DrawText("Music & SFX - Simulacrum + Itroma", 380, 360, 32, WHITE);
 
     if (draw_button("Quit", 500, 500, 280, 40)) {

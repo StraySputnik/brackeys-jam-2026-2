@@ -5,7 +5,7 @@
 #include "entity.h"
 
 #define SPAWNER_COUNT 6
-#define WAVE_COUNT    2
+#define WAVE_COUNT    6
 
 typedef struct {
     Grid       grid;
